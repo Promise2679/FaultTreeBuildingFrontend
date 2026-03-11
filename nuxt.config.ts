@@ -5,5 +5,6 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   eslint: { config: { standalone: false } },
   modules: ['@nuxt/eslint', '@nuxt/ui'],
-  routeRules: { '/': { prerender: true } }
+  routeRules: { '/': { prerender: true } },
+  ssr: false
 })
