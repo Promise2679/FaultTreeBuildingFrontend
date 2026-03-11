@@ -6,9 +6,15 @@
     "build": "nuxt build",
     "dev": "nuxt dev",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare",
+    "postinstall": "nuxt prepare && pnpm simple-git-hooks",
     "lint": "eslint .",
     "typecheck": "nuxt typecheck"
+  },
+  "nano-staged": {
+    "*.[vue,ts]": "eslint"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "pnpm nano-staged"
   },
   "dependencies": {
     "@iconify-json/lucide": "^1.2.96",
@@ -27,7 +33,9 @@
     "eslint-plugin-format": "^2.0.1",
     "eslint-plugin-prettier": "^5.5.5",
     "eslint-plugin-vue": "^10.8.0",
+    "nano-staged": "^0.9.0",
     "prettier": "^3.8.1",
+    "simple-git-hooks": "^2.13.1",
     "typescript": "^5.9.3",
     "vue-eslint-parser": "^10.4.0",
     "vue-tsc": "^3.2.5"
