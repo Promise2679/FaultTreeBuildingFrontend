@@ -1,6 +1,13 @@
 // 可以参考仓库下的 .vscode/settings.json
 // @filename .vscode/settings.json
 {
-  "eslint.validate": ["vue", "typescript", "javascript", "jsonc", "json"],
+  "eslint.validate": [
+    "vue",
+    "typescript",
+    "javascript",
+    "jsonc",
+    "json",
+    "css"
+  ],
   "editor.defaultFormatter": "dbaeumer.vscode-eslint"
 }
