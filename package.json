@@ -19,8 +19,17 @@
   },
   "devDependencies": {
     "@nuxt/eslint": "^1.15.2",
+    "@promise2/eslint-config": "^0.2.2",
+    "@typescript-eslint/eslint-plugin": "^8.57.0",
+    "@typescript-eslint/parser": "^8.57.0",
     "eslint": "^9.39.4",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-format": "^2.0.1",
+    "eslint-plugin-prettier": "^5.5.5",
+    "eslint-plugin-vue": "^10.8.0",
+    "prettier": "^3.8.1",
     "typescript": "^5.9.3",
+    "vue-eslint-parser": "^10.4.0",
     "vue-tsc": "^3.2.5"
   },
   "packageManager": "pnpm@10.30.3"
