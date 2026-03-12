@@ -1,5 +1,6 @@
 catalog:
   '@nuxt/ui': ^4.5.1
+  '@vueuse/core': ^14.2.1
   eslint: ^9.39.4
   nuxt: ^4.3.1
   tailwindcss: ^4.2.1
@@ -14,6 +15,7 @@ catalogs:
     simple-git-hooks: ^2.13.1
   nuxt:
     '@nuxt/eslint': ^1.15.2
+    '@vueuse/nuxt': ^14.2.1
     vue-tsc: ^3.2.5
   ui:
     '@iconify-json/lucide': ^1.2.96
