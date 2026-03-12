@@ -17,21 +17,20 @@
     "pre-commit": "pnpm nano-staged"
   },
   "dependencies": {
-    "@iconify-json/lucide": "^1.2.96",
-    "@iconify-json/simple-icons": "^1.2.72",
-    "@nuxt/ui": "^4.5.1",
-    "nuxt": "^4.3.1",
-    "tailwindcss": "^4.2.1"
+    "@iconify-json/lucide": "catalog:ui",
+    "@iconify-json/simple-icons": "catalog:ui",
+    "@nuxt/ui": "catalog:",
+    "nuxt": "catalog:",
+    "tailwindcss": "catalog:"
   },
   "devDependencies": {
-    "@nuxt/eslint": "^1.15.2",
-    "@promise2/eslint-config": "^0.2.2",
-    "eslint": "^9.39.4",
-    "nano-staged": "^0.9.0",
-    "prettier": "^3.8.1",
-    "simple-git-hooks": "^2.13.1",
-    "typescript": "^5.9.3",
-    "vue-tsc": "^3.2.5"
+    "@nuxt/eslint": "catalog:nuxt",
+    "@promise2/eslint-config": "catalog:infra",
+    "eslint": "catalog:",
+    "nano-staged": "catalog:infra",
+    "simple-git-hooks": "catalog:infra",
+    "typescript": "catalog:",
+    "vue-tsc": "catalog:nuxt"
   },
   "packageManager": "pnpm@10.30.3"
 }
