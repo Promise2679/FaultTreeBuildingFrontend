@@ -11,7 +11,7 @@
     "typecheck": "nuxt typecheck"
   },
   "nano-staged": {
-    "*.[vue,ts]": "eslint"
+    "**/*.{vue,ts}": "eslint"
   },
   "simple-git-hooks": {
     "pre-commit": "pnpm nano-staged"
