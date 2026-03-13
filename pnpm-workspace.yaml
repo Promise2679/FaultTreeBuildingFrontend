@@ -2,7 +2,7 @@ catalog:
   '@nuxt/ui': ^4.5.1
   '@vueuse/core': ^14.2.1
   eslint: ^10.0.3
-  nuxt: ^4.3.1
+  nuxt: ^4.4.2
   tailwindcss: ^4.2.1
   typescript: ^5.9.3
 
@@ -18,8 +18,8 @@ catalogs:
     '@vueuse/nuxt': ^14.2.1
     vue-tsc: ^3.2.5
   ui:
-    '@iconify-json/lucide': ^1.2.96
-    '@iconify-json/simple-icons': ^1.2.72
+    '@iconify-json/lucide': ^1.2.97
+    '@iconify-json/simple-icons': ^1.2.73
 
 cleanupUnusedCatalogs: true
 
@@ -29,7 +29,5 @@ ignoredBuiltDependencies:
   - esbuild
   - unrs-resolver
   - vue-demi
-
 overrides:
-  citty: ^0.1.6
   serialize-javascript@<=7.0.2: '>=7.0.3'
