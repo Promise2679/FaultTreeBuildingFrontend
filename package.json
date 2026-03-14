@@ -6,8 +6,8 @@
     "build": "nuxt build",
     "dev": "nuxt dev",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare && pnpm simple-git-hooks",
-    "lint": "eslint .",
+    "postinstall": "nuxt prepare && simple-git-hooks",
+    "lint": "eslint",
     "typecheck": "nuxt typecheck"
   },
   "nano-staged": {
