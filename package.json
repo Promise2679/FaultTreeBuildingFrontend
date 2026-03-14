@@ -17,6 +17,9 @@
     "pre-commit": "pnpm nano-staged"
   },
   "dependencies": {
+    "@antv/layout": "catalog:",
+    "@antv/x6": "catalog:",
+    "@antv/x6-vue-shape": "catalog:edit",
     "@iconify-json/lucide": "catalog:ui",
     "@iconify-json/simple-icons": "catalog:ui",
     "@nuxt/ui": "catalog:",
