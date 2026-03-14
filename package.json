@@ -8,6 +8,7 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare && simple-git-hooks",
     "lint": "eslint",
+    "lint:fix": "eslint --fix",
     "typecheck": "nuxt typecheck"
   },
   "nano-staged": {
