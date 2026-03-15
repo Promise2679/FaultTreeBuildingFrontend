@@ -14,7 +14,7 @@ catalogs:
   edit:
     '@antv/x6-vue-shape': ^3.0.2
   infra:
-    '@promise2/eslint-config': ^0.3.0
+    '@promise2/eslint-config': ^0.4.0
     nano-staged: ^0.9.0
     simple-git-hooks: ^2.13.1
   nuxt:
@@ -22,8 +22,8 @@ catalogs:
     '@vueuse/nuxt': ^14.2.1
     vue-tsc: ^3.2.5
   ui:
-    '@iconify-json/lucide': ^1.2.97
-    '@iconify-json/simple-icons': ^1.2.73
+    '@iconify-json/lucide': ^1.2.98
+    '@iconify-json/simple-icons': ^1.2.74
 
 cleanupUnusedCatalogs: true
 
