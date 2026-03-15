@@ -1,60 +1,89 @@
-# Nuxt Starter Template
+# 故障树构建前端
 
 [![Nuxt UI](https://img.shields.io/badge/Made%20with-Nuxt%20UI-00DC82?logo=nuxt&labelColor=020420)](https://ui.nuxt.com)
+[![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 
-Use this template to get started with [Nuxt UI](https://ui.nuxt.com) quickly.
+基于 Nuxt 4 + Nuxt UI + TypeScript 的故障树可视化构建前端应用。
 
-- [Live demo](https://starter-template.nuxt.dev/)
-- [Documentation](https://ui.nuxt.com/docs/getting-started/installation/nuxt)
+## 特性
 
-<a href="https://starter-template.nuxt.dev/" target="_blank">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://ui.nuxt.com/assets/templates/nuxt/starter-dark.png">
-    <source media="(prefers-color-scheme: light)" srcset="https://ui.nuxt.com/assets/templates/nuxt/starter-light.png">
-    <img alt="Nuxt Starter Template" src="https://ui.nuxt.com/assets/templates/nuxt/starter-light.png" width="830" height="466">
-  </picture>
-</a>
+- **可视化编辑** - 拖拽、节点编辑、连边等交互功能
+- **图形化界面** - 基于 @antv/x6 构建的流程图编辑器
+- **现代化 UI** - 使用 Nuxt UI 组件库
 
-> The starter template for Vue is on https://github.com/nuxt-ui-templates/starter-vue.
+## 技术栈
 
-## Quick Start
+- **框架**: Nuxt 4
+- **UI 库**: Nuxt UI
+- **图形库**: @antv/x6 + @antv/layout
+- **语言**: TypeScript
+- **包管理**: pnpm
 
-```bash [Terminal]
-npm create nuxt@latest -- -t ui
-```
+## 快速开始
 
-## Deploy your own
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-name=starter&repository-url=https%3A%2F%2Fgithub.com%2Fnuxt-ui-templates%2Fstarter&demo-image=https%3A%2F%2Fui.nuxt.com%2Fassets%2Ftemplates%2Fnuxt%2Fstarter-dark.png&demo-url=https%3A%2F%2Fstarter-template.nuxt.dev%2F&demo-title=Nuxt%20Starter%20Template&demo-description=A%20minimal%20template%20to%20get%20started%20with%20Nuxt%20UI.)
-
-## Setup
-
-Make sure to install the dependencies:
+### 安装依赖
 
 ```bash
 pnpm install
 ```
 
-## Development Server
+### 开发服务器
 
-Start the development server on `http://localhost:3000`:
+启动开发服务器（默认端口 3000）：
 
 ```bash
 pnpm dev
 ```
 
-## Production
+### 生产构建
 
-Build the application for production:
+构建生产版本：
 
 ```bash
 pnpm build
 ```
 
-Locally preview production build:
+本地预览生产构建：
 
 ```bash
 pnpm preview
 ```
 
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+## 项目命令
+
+| 命令 | 说明 |
+|------|------|
+| `pnpm dev` | 启动开发服务器 |
+| `pnpm build` | 构建生产版本 |
+| `pnpm preview` | 本地预览生产构建 |
+| `pnpm lint` | 运行 ESLint 检查代码 |
+| `pnpm lint:fix` | 自动修复 ESLint 问题 |
+| `pnpm typecheck` | 运行 TypeScript 类型检查 |
+
+## 项目结构
+
+```
+FaultTreeBuildingFrontend/
+├── app/
+│   ├── app.config.ts          # 应用配置（Nuxt UI 主题）
+│   ├── app.vue                # 根组件
+│   ├── assets/
+│   │   └── css/
+│   │       └── main.css       # 全局样式
+│   ├── components/            # 组件目录（自动导入）
+│   │   └── FaultTreeCanvas.vue
+│   ├── pages/                 # 页面文件
+│   │   └── index.vue          # 首页
+│   ├── composables/           # Composables（自动导入）
+│   ├── utils/                 # 工具函数（自动导入）
+│   └── types/                 # 类型定义
+├── .nuxt/                     # Nuxt 生成文件
+├── nuxt.config.ts             # Nuxt 配置
+├── tsconfig.json              # TypeScript 配置
+├── eslint.config.mjs          # ESLint 配置
+└── package.json               # 项目依赖
+```
+
+## 许可证
+
+MIT
