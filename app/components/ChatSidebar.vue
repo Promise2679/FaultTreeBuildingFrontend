@@ -23,11 +23,11 @@ const chatMessages = computed(() =>
 
 <template>
   <aside
-    class="fixed left-0 top-0 h-full bg-white border-r border-neutral-200 shadow-lg z-50 transition-all duration-300 flex flex-col"
+    class="fixed top-0 left-0 z-50 flex h-full flex-col border-r border-neutral-200 bg-white shadow-lg transition-all duration-300"
     :class="isCollapsed ? 'w-14' : 'w-80'"
   >
-    <header class="flex items-center justify-between p-3 border-b border-neutral-200">
-      <span v-if="!isCollapsed" class="font-medium text-neutral-700 whitespace-nowrap">AI 助手</span>
+    <header class="flex items-center justify-between border-b border-neutral-200 p-3">
+      <span v-if="!isCollapsed" class="font-medium whitespace-nowrap text-neutral-700">AI 助手</span>
       <UButton
         :icon="isCollapsed ? 'i-lucide-panel-right' : 'i-lucide-panel-left-close'"
         size="sm"
@@ -40,7 +40,7 @@ const chatMessages = computed(() =>
       <UChatMessages :messages="chatMessages" :user="{ variant: 'solid' }" :assistant="{ variant: 'soft' }" />
     </main>
 
-    <footer v-if="!isCollapsed" class="p-3 border-t border-neutral-200 flex items-center gap-2">
+    <footer v-if="!isCollapsed" class="flex items-center gap-2 border-t border-neutral-200 p-3">
       <UInput placeholder="输入消息..." />
       <UButton icon="i-lucide-send" size="sm" variant="solid" color="primary" disabled />
     </footer>
