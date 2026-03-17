@@ -37,9 +37,7 @@ useEventListener('resize', () => {
   graph?.resize(window.innerWidth, window.innerHeight)
 })
 
-onMounted(() => {
-  initGraph()
-})
+onMounted(initGraph)
 
 onUnmounted(() => {
   graph?.dispose()
