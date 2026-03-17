@@ -4,6 +4,7 @@ export default defineNuxtConfig({
   css: ['~/assets/css/main.css'],
   devtools: { enabled: true },
   eslint: { config: { standalone: false } },
+  fonts: { provider: 'bunny' },
   modules: ['@nuxt/eslint', '@nuxt/ui', '@vueuse/nuxt'],
   routeRules: { '/': { prerender: true } },
   ssr: false
