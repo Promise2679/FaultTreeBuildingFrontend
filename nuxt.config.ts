@@ -7,5 +7,6 @@ export default defineNuxtConfig({
   fonts: { provider: 'bunny' },
   modules: ['@nuxt/eslint', '@nuxt/ui', '@vueuse/nuxt'],
   routeRules: { '/': { prerender: true } },
-  ssr: false
+  ssr: false,
+  vite: { optimizeDeps: { include: ['@antv/x6'] } }
 })
