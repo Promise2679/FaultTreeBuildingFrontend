@@ -15,11 +15,11 @@ const {
 
 <template>
   <div
-    class="fixed top-0 left-0 z-50 flex h-full flex-col border-r border-neutral-200 bg-neutral-50 shadow-lg transition-all duration-300"
+    class="fixed top-0 left-0 z-50 flex h-full flex-col border-r border-neutral-200 bg-neutral-50 shadow-lg transition-[width] duration-300 ease-out"
     :class="isCollapsed ? 'w-14' : 'w-80'"
   >
     <div class="flex items-center justify-between border-b border-neutral-200 p-3">
-      <span v-if="!isCollapsed" class="font-medium whitespace-nowrap text-neutral-700">AI 助手</span>
+      <span v-show="!isCollapsed" class="font-medium whitespace-nowrap text-neutral-700">AI 助手</span>
       <UButton
         :icon="isCollapsed ? 'i-lucide-panel-right' : 'i-lucide-panel-left-close'"
         size="sm"
@@ -28,11 +28,11 @@ const {
       />
     </div>
 
-    <div v-if="!isCollapsed" class="flex-1 overflow-auto p-3">
+    <div v-show="!isCollapsed" class="flex-1 overflow-auto p-3">
       <UChatMessages :messages="chatMessages" :user="{ variant: 'solid' }" :assistant="{ variant: 'soft' }" />
     </div>
 
-    <div v-if="!isCollapsed" class="border-t border-neutral-200 p-3">
+    <div v-show="!isCollapsed" class="border-t border-neutral-200 p-3">
       <div v-if="uploadedFiles.length > 0" class="mb-2 flex flex-wrap gap-2">
         <div
           v-for="file in uploadedFiles"
