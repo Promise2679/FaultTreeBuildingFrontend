@@ -3,14 +3,16 @@ export default defineAppConfig({
     chatMessage: {
       variants: {
         variant: {
-          soft: { content: 'bg-green-50 text-green-900 rounded-2xl' },
-          solid: { content: 'bg-green-600 text-white rounded-2xl' }
+          soft: { content: 'bg-primary-50 text-primary-900 rounded-2xl' },
+          solid: { content: 'bg-primary-600 text-neutral-50 rounded-2xl' }
         }
       }
     },
-    colors: {
-      neutral: 'slate',
-      primary: 'green'
-    }
+    chatPrompt: {
+      defaultVariants: { variant: 'naked' },
+      slots: { base: 'text-neutral-900 placeholder:text-neutral-400' },
+      variants: { variant: { naked: { root: 'bg-neutral-50 border border-neutral-200' } } }
+    },
+    colors: { neutral: 'slate', primary: 'green' }
   }
 })

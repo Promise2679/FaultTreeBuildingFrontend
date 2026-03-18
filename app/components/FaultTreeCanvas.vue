@@ -45,5 +45,5 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div ref="containerRef" class="size-full bg-white" />
+  <div ref="containerRef" class="size-full bg-neutral-50" />
 </template>

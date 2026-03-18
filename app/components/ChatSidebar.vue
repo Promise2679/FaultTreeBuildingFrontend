@@ -19,11 +19,23 @@ const chatMessages = computed(() =>
     role: msg.role
   }))
 )
+
+const input = ref('')
+
+function handleSend() {
+  if (!input.value.trim()) return
+  messages.value.push({
+    content: input.value,
+    id: Date.now().toString(),
+    role: 'user'
+  })
+  input.value = ''
+}
 </script>
 
 <template>
   <div
-    class="fixed top-0 left-0 z-50 flex h-full flex-col border-r border-neutral-200 bg-white shadow-lg transition-all duration-300"
+    class="fixed top-0 left-0 z-50 flex h-full flex-col border-r border-neutral-200 bg-neutral-50 shadow-lg transition-all duration-300"
     :class="isCollapsed ? 'w-14' : 'w-80'"
   >
     <div class="flex items-center justify-between border-b border-neutral-200 p-3">
@@ -40,9 +52,10 @@ const chatMessages = computed(() =>
       <UChatMessages :messages="chatMessages" :user="{ variant: 'solid' }" :assistant="{ variant: 'soft' }" />
     </div>
 
-    <div v-if="!isCollapsed" class="flex items-center gap-2 border-t border-neutral-200 p-3">
-      <UInput placeholder="输入消息..." />
-      <UButton icon="i-lucide-send" size="sm" variant="solid" color="primary" disabled />
+    <div v-if="!isCollapsed" class="border-t border-neutral-200 p-3">
+      <UChatPrompt v-model="input" placeholder="输入消息..." @submit="handleSend">
+        <UChatPromptSubmit />
+      </UChatPrompt>
     </div>
   </div>
 </template>
