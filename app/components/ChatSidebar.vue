@@ -1,36 +1,16 @@
 <script setup lang="ts">
 const [isCollapsed, toggle] = useToggle()
 
-interface ChatMessage {
-  content: string
-  id: string
-  role: 'assistant' | 'user'
-}
-
-const messages = ref<ChatMessage[]>([
-  { content: '你好！我是故障树分析助手，有什么可以帮助你的吗？', id: '1', role: 'assistant' },
-  { content: '帮我创建一个串联系统', id: '2', role: 'user' }
-])
-
-const chatMessages = computed(() =>
-  messages.value.map(msg => ({
-    id: msg.id,
-    parts: [{ text: msg.content, type: 'text' }],
-    role: msg.role
-  }))
-)
-
-const input = ref('')
-
-function handleSend() {
-  if (!input.value.trim()) return
-  messages.value.push({
-    content: input.value,
-    id: Date.now().toString(),
-    role: 'user'
-  })
-  input.value = ''
-}
+const {
+  chatMessages,
+  fileInputRef,
+  handleFileSelect,
+  handleSend,
+  input,
+  removeFile,
+  triggerFileUpload,
+  uploadedFiles
+} = useChat()
 </script>
 
 <template>
@@ -53,8 +33,31 @@ function handleSend() {
     </div>
 
     <div v-if="!isCollapsed" class="border-t border-neutral-200 p-3">
+      <div v-if="uploadedFiles.length > 0" class="mb-2 flex flex-wrap gap-2">
+        <div
+          v-for="file in uploadedFiles"
+          :key="file.id"
+          class="flex items-center gap-1 rounded-md bg-neutral-100 px-2 py-1 text-xs text-neutral-700"
+        >
+          <UIcon name="i-lucide-paperclip" class="size-3" />
+          <span class="max-w-24 truncate">{{ file.name }}</span>
+          <button
+            type="button"
+            class="ml-1 cursor-pointer text-neutral-500 hover:text-neutral-700"
+            @click="removeFile(file.id)"
+          >
+            <UIcon name="i-lucide-x" class="size-3" />
+          </button>
+        </div>
+      </div>
       <UChatPrompt v-model="input" placeholder="输入消息..." @submit="handleSend">
-        <UChatPromptSubmit />
+        <template #footer>
+          <input ref="fileInputRef" type="file" class="hidden" multiple @change="handleFileSelect" />
+          <div class="flex items-center gap-1">
+            <UButton icon="i-lucide-paperclip" size="sm" variant="link" color="neutral" @click="triggerFileUpload" />
+            <UChatPromptSubmit />
+          </div>
+        </template>
       </UChatPrompt>
     </div>
   </div>
