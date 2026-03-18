@@ -11,7 +11,13 @@ export default defineAppConfig({
     chatPrompt: {
       defaultVariants: { variant: 'naked' },
       slots: { base: 'text-neutral-900 placeholder:text-neutral-400' },
-      variants: { variant: { naked: { root: 'bg-neutral-50 border border-neutral-200' } } }
+      variants: {
+        variant: {
+          naked: {
+            root: 'bg-neutral-50 border border-neutral-300'
+          }
+        }
+      }
     },
     colors: { neutral: 'slate', primary: 'green' }
   }
