@@ -18,8 +18,8 @@
     "pre-commit": "pnpm nano-staged"
   },
   "dependencies": {
-    "@antv/layout": "catalog:",
     "@antv/x6": "catalog:",
+    "@dagrejs/dagre": "catalog:",
     "@iconify-json/lucide": "catalog:icon",
     "@iconify-json/simple-icons": "catalog:icon",
     "@nuxt/ui": "catalog:",

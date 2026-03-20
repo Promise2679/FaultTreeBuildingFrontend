@@ -1,10 +1,66 @@
 <script setup lang="ts">
 import { Graph, History, Keyboard } from '@antv/x6'
+import dagre from '@dagrejs/dagre'
+
+import { mockFaultTreeData } from '~/constants/faultTreeMock'
+
+interface GraphEdge {
+  source: string
+  target: string
+}
+
+interface GraphNode {
+  data: { gate?: string; label?: string; nodeType?: string }
+  id: string
+  position?: GraphNodePosition
+  size: { height: number; width: number }
+}
+
+interface GraphNodePosition {
+  x: number
+  y: number
+}
 
 const containerRef = ref<HTMLElement>()
 let graph: Graph | null = null
 
-const initGraph = () => {
+useEventListener('resize', () => {
+  graph?.resize(window.innerWidth, window.innerHeight)
+})
+
+onMounted(initGraph)
+
+onUnmounted(() => {
+  graph?.dispose()
+})
+
+function applyDagreLayout(nodes: GraphNode[], edges: GraphEdge[]) {
+  const g = new dagre.graphlib.Graph()
+  g.setDefaultEdgeLabel({})
+  g.setGraph({ nodesep: 40, rankdir: 'TB', ranksep: 80 })
+
+  for (const node of nodes)
+    g.setNode(node.id, {
+      height: node.size.height,
+      width: node.size.width
+    })
+
+  for (const edge of edges) g.setEdge(edge.source, edge.target)
+
+  dagre.layout(g)
+
+  for (const node of nodes) {
+    const layoutNode = g.node(node.id) as GraphNodePosition
+    node.position = {
+      x: layoutNode.x - node.size.width / 2,
+      y: layoutNode.y - node.size.height / 2
+    }
+  }
+
+  return { edges, nodes }
+}
+
+function initGraph() {
   if (!containerRef.value) return
 
   graph = new Graph({
@@ -19,29 +75,27 @@ const initGraph = () => {
   graph.bindKey('ctrl+z', () => graph?.undo())
   graph.bindKey('ctrl+y', () => graph?.redo())
 
-  graph.addNode({
-    attrs: {
-      body: { fill: '#f3f4f6', rx: 4, ry: 4, stroke: '#374151', strokeWidth: 1 },
-      label: { fill: '#111827', fontSize: 14 }
-    },
-    height: 40,
-    id: 'root',
-    label: '顶事件',
-    width: 120,
-    x: window.innerWidth / 2,
-    y: 100
-  })
+  const { edges, nodes } = transformFaultTreeData()
+  const layoutedData = applyDagreLayout(nodes, edges)
+  graph.fromJSON(layoutedData)
+  graph.centerContent()
 }
 
-useEventListener('resize', () => {
-  graph?.resize(window.innerWidth, window.innerHeight)
-})
+function transformFaultTreeData(): { edges: GraphEdge[]; nodes: GraphNode[] } {
+  const { nodes } = mockFaultTreeData
 
-onMounted(initGraph)
+  const graphNodes: GraphNode[] = nodes.map(node => ({
+    data: { gate: node.gate, label: node.nodeName, nodeType: node.nodeType },
+    id: node.nodeId,
+    size: { height: 50, width: 140 }
+  }))
 
-onUnmounted(() => {
-  graph?.dispose()
-})
+  const graphEdges: GraphEdge[] = nodes
+    .filter(node => node.parentId)
+    .map(node => ({ source: node.parentId ?? '', target: node.nodeId }))
+
+  return { edges: graphEdges, nodes: graphNodes }
+}
 </script>
 
 <template>
