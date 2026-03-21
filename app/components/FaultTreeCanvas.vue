@@ -70,8 +70,9 @@ function transformFaultTreeData(): { edges: GraphEdge[]; nodes: GraphNode[] } {
   const { nodes } = mockFaultTreeData
 
   const graphNodes: GraphNode[] = nodes.map(node => ({
-    data: { gate: node.gate, label: node.nodeName, nodeType: node.nodeType },
+    data: { gate: node.gate, nodeType: node.nodeType },
     id: node.nodeId,
+    label: node.nodeName,
     size: { height: 50, width: 140 }
   }))
 
