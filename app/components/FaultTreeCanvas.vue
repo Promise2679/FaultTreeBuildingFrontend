@@ -2,24 +2,9 @@
 import { Graph, History, Keyboard } from '@antv/x6'
 import dagre from '@dagrejs/dagre'
 
+import type { GraphEdge, GraphNode, GraphNodePosition } from '~/types/faultTree'
+
 import { mockFaultTreeData } from '~/constants/faultTreeMock'
-
-interface GraphEdge {
-  source: string
-  target: string
-}
-
-interface GraphNode {
-  data: { gate?: string; label?: string; nodeType?: string }
-  id: string
-  position?: GraphNodePosition
-  size: { height: number; width: number }
-}
-
-interface GraphNodePosition {
-  x: number
-  y: number
-}
 
 const containerRef = ref<HTMLElement>()
 let graph: Graph | null = null
