@@ -4,9 +4,10 @@ export interface GraphEdge {
 }
 
 export interface GraphNode {
-  data: { gate?: string; nodeType?: string }
+  data?: { nodeType?: string }
   id: string
   label?: string
+  nodeType?: 'event' | 'gate'
   position?: GraphNodePosition
   size: { height: number; width: number }
 }

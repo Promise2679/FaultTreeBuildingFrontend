@@ -60,25 +60,75 @@ function initGraph() {
   graph.bindKey('ctrl+z', () => graph?.undo())
   graph.bindKey('ctrl+y', () => graph?.redo())
 
+  registerGateNode()
+
   const { edges, nodes } = transformFaultTreeData()
   const layoutedData = applyDagreLayout(nodes, edges)
   graph.fromJSON(layoutedData)
   graph.centerContent()
 }
 
+function registerGateNode() {
+  Graph.registerNode('gate-node', {
+    markup: [
+      {
+        attrs: { fill: '#fef3c7', refPoints: '0,10 10,0 20,10 10,20', stroke: '#f59e0b', 'stroke-width': 2 },
+        tagName: 'polygon'
+      },
+      {
+        attrs: {
+          'dominant-baseline': 'middle',
+          fill: '#92400e',
+          'font-size': 14,
+          'font-weight': 'bold',
+          ref: 'label',
+          'text-anchor': 'middle'
+        },
+        tagName: 'text'
+      }
+    ],
+    propHooks(metadata: Record<string, unknown>) {
+      return { label: metadata.label as string }
+    }
+  })
+}
+
 function transformFaultTreeData(): { edges: GraphEdge[]; nodes: GraphNode[] } {
   const { nodes } = mockFaultTreeData
 
-  const graphNodes: GraphNode[] = nodes.map(node => ({
-    data: { gate: node.gate, nodeType: node.nodeType },
-    id: node.nodeId,
-    label: node.nodeName,
-    size: { height: 50, width: 140 }
-  }))
+  const graphNodes: GraphNode[] = []
+  const graphEdges: GraphEdge[] = []
+  const gateMap = new Map<string, string>()
 
-  const graphEdges: GraphEdge[] = nodes
-    .filter(node => node.parentId)
-    .map(node => ({ source: node.parentId ?? '', target: node.nodeId }))
+  for (const node of nodes) {
+    graphNodes.push({
+      data: { nodeType: node.nodeType },
+      id: node.nodeId,
+      label: node.nodeName,
+      nodeType: 'event',
+      size: { height: 50, width: 140 }
+    })
+
+    if (node.gate === 'AND' || node.gate === 'OR') {
+      const gateId = `gate_${node.nodeId}`
+      const gateSymbol = node.gate === 'AND' ? '∧' : '∨'
+
+      gateMap.set(node.nodeId, gateId)
+      graphNodes.push({ id: gateId, label: gateSymbol, nodeType: 'gate', size: { height: 40, width: 40 } })
+    }
+  }
+
+  for (const node of nodes)
+    if (node.gate === 'AND' || node.gate === 'OR') {
+      const gateId = gateMap.get(node.nodeId)!
+      graphEdges.push({ source: node.nodeId, target: gateId })
+
+      const children = nodes.filter(n => n.parentId === node.nodeId)
+      for (const child of children) graphEdges.push({ source: gateId, target: child.nodeId })
+    } else if (node.parentId && !gateMap.has(node.nodeId)) {
+      const parentGateId = gateMap.get(node.parentId)
+      if (parentGateId) graphEdges.push({ source: parentGateId, target: node.nodeId })
+    }
 
   return { edges: graphEdges, nodes: graphNodes }
 }
