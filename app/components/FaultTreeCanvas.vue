@@ -61,11 +61,19 @@ function initGraph() {
   graph.bindKey('ctrl+y', () => graph?.redo())
 
   registerGateNode()
+  registerFaultTreeEdge()
 
   const { edges, nodes } = transformFaultTreeData()
   const layoutedData = applyDagreLayout(nodes, edges)
   graph.fromJSON(layoutedData)
   graph.centerContent()
+}
+
+function registerFaultTreeEdge() {
+  Graph.registerEdge('fault-tree-edge', {
+    connector: { args: { radius: 8 }, name: 'rounded' },
+    router: { name: 'orth' }
+  })
 }
 
 function registerGateNode() {
@@ -121,13 +129,13 @@ function transformFaultTreeData(): { edges: GraphEdge[]; nodes: GraphNode[] } {
   for (const node of nodes)
     if (node.gate === 'AND' || node.gate === 'OR') {
       const gateId = gateMap.get(node.nodeId)!
-      graphEdges.push({ source: node.nodeId, target: gateId })
+      graphEdges.push({ shape: 'fault-tree-edge', source: node.nodeId, target: gateId })
 
       const children = nodes.filter(n => n.parentId === node.nodeId)
-      for (const child of children) graphEdges.push({ source: gateId, target: child.nodeId })
+      for (const child of children) graphEdges.push({ shape: 'fault-tree-edge', source: gateId, target: child.nodeId })
     } else if (node.parentId && !gateMap.has(node.nodeId)) {
       const parentGateId = gateMap.get(node.parentId)
-      if (parentGateId) graphEdges.push({ source: parentGateId, target: node.nodeId })
+      if (parentGateId) graphEdges.push({ shape: 'fault-tree-edge', source: parentGateId, target: node.nodeId })
     }
 
   return { edges: graphEdges, nodes: graphNodes }

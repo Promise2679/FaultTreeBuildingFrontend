@@ -1,4 +1,5 @@
 export interface GraphEdge {
+  shape?: string
   source: string
   target: string
 }
