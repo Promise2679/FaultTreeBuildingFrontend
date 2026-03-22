@@ -24,12 +24,7 @@ function applyDagreLayout(nodes: GraphNode[], edges: GraphEdge[]) {
   g.setDefaultEdgeLabel({})
   g.setGraph({ nodesep: 40, rankdir: 'TB', ranksep: 80 })
 
-  for (const node of nodes)
-    g.setNode(node.id, {
-      height: node.size.height,
-      width: node.size.width
-    })
-
+  for (const node of nodes) g.setNode(node.id, { height: node.size.height, width: node.size.width })
   for (const edge of edges) g.setEdge(edge.source, edge.target)
 
   dagre.layout(g)
@@ -106,37 +101,14 @@ function transformFaultTreeData(): { edges: GraphEdge[]; nodes: GraphNode[] } {
 
   const graphNodes: GraphNode[] = []
   const graphEdges: GraphEdge[] = []
-  const gateMap = new Map<string, string>()
 
   for (const node of nodes) {
-    graphNodes.push({
-      data: { nodeType: node.nodeType },
-      id: node.nodeId,
-      label: node.nodeName,
-      nodeType: 'event',
-      size: { height: 50, width: 140 }
-    })
+    node.nodeType === 'gate'
+      ? graphNodes.push({ id: node.node_Id, label: node.nodeName, nodeType: 'gate', size: { height: 40, width: 40 } })
+      : graphNodes.push({ id: node.node_Id, label: node.nodeName, nodeType: 'event', size: { height: 50, width: 140 } })
 
-    if (node.gate === 'AND' || node.gate === 'OR') {
-      const gateId = `gate_${node.nodeId}`
-      const gateSymbol = node.gate === 'AND' ? '∧' : '∨'
-
-      gateMap.set(node.nodeId, gateId)
-      graphNodes.push({ id: gateId, label: gateSymbol, nodeType: 'gate', size: { height: 40, width: 40 } })
-    }
+    if (node.parentId) graphEdges.push({ shape: 'fault-tree-edge', source: node.parentId, target: node.node_Id })
   }
-
-  for (const node of nodes)
-    if (node.gate === 'AND' || node.gate === 'OR') {
-      const gateId = gateMap.get(node.nodeId)!
-      graphEdges.push({ shape: 'fault-tree-edge', source: node.nodeId, target: gateId })
-
-      const children = nodes.filter(n => n.parentId === node.nodeId)
-      for (const child of children) graphEdges.push({ shape: 'fault-tree-edge', source: gateId, target: child.nodeId })
-    } else if (node.parentId && !gateMap.has(node.nodeId)) {
-      const parentGateId = gateMap.get(node.parentId)
-      if (parentGateId) graphEdges.push({ shape: 'fault-tree-edge', source: parentGateId, target: node.nodeId })
-    }
 
   return { edges: graphEdges, nodes: graphNodes }
 }

@@ -19,12 +19,11 @@ export interface GraphNodePosition {
 }
 
 export interface HandlerFaultTreeNodeResponse {
-  gate?: string
   hasChildren: number
-  nodeId: string
+  node_Id: string
   nodeName: string
   nodeType: string
-  parentId: string | undefined
+  parentId: string
 }
 
 export interface HandlerFaultTreeResponse {
