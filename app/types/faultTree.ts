@@ -5,12 +5,18 @@ export interface GraphEdge {
 }
 
 export interface GraphNode {
-  data?: { nodeType?: string }
+  data?: GraphNodeData
   id: string
   label?: string
   nodeType?: 'event' | 'gate'
   position?: GraphNodePosition
   size: { height: number; width: number }
+}
+
+export interface GraphNodeData {
+  description?: string
+  nodeType?: string
+  probability?: number
 }
 
 export interface GraphNodePosition {

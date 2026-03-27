@@ -2,7 +2,7 @@
 import { Graph, History, Keyboard } from '@antv/x6'
 import dagre from '@dagrejs/dagre'
 
-import type { GraphEdge, GraphNode, GraphNodePosition } from '~/types/faultTree'
+import type { GraphEdge, GraphNode, GraphNodeData, GraphNodePosition } from '~/types/faultTree'
 
 import { registerFaultTreeShapes } from '~/constants/faultTreeGraph'
 import { mockFaultTreeData } from '~/constants/faultTreeMock'
@@ -66,8 +66,8 @@ function initGraph() {
   graph.centerContent()
 
   graph.on('node:click', ({ node }) => {
-    const nodeData = node.getData() ?? {}
-    const label = node.attr<string>('text/text') || ''
+    const nodeData = node.getData<GraphNodeData>()
+    const label = node.attr<string>('text/text')
     const nodeType = nodeData.nodeType
     selectNode({
       description: nodeData.description,
@@ -88,9 +88,15 @@ function transformFaultTreeData(): { edges: GraphEdge[]; nodes: GraphNode[] } {
   const graphEdges: GraphEdge[] = []
 
   for (const node of nodes) {
-    node.nodeType === 'gate'
-      ? graphNodes.push({ id: node.node_Id, label: node.nodeName, nodeType: 'gate', size: { height: 40, width: 40 } })
-      : graphNodes.push({ id: node.node_Id, label: node.nodeName, nodeType: 'event', size: { height: 50, width: 140 } })
+    const nodeType = node.nodeType === 'GATE' ? 'gate' : 'event'
+    const graphNode: GraphNode = {
+      data: { description: node.nodeName, nodeType, probability: undefined },
+      id: node.node_Id,
+      label: node.nodeName,
+      nodeType,
+      size: nodeType === 'gate' ? { height: 40, width: 40 } : { height: 50, width: 140 }
+    }
+    graphNodes.push(graphNode)
 
     if (node.parentId) graphEdges.push({ shape: 'fault-tree-edge', source: node.parentId, target: node.node_Id })
   }
