@@ -19,6 +19,22 @@ export default defineAppConfig({
         }
       }
     },
-    colors: { neutral: 'slate', primary: 'green' }
+    colors: { neutral: 'slate', primary: 'green' },
+    input: {
+      defaultVariants: { variant: 'subtle' },
+      variants: {
+        variant: {
+          subtle: 'bg-neutral-50 text-neutral-900'
+        }
+      }
+    },
+    textarea: {
+      defaultVariants: { variant: 'subtle' },
+      variants: {
+        variant: {
+          subtle: 'bg-neutral-50 text-neutral-900'
+        }
+      }
+    }
   }
 })
