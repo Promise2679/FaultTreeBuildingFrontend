@@ -6,6 +6,8 @@ import type { GraphEdge, GraphNode, GraphNodePosition } from '~/types/faultTree'
 
 import { mockFaultTreeData } from '~/constants/faultTreeMock'
 
+const { clearSelection, selectNode } = useFaultTree()
+
 const containerRef = ref<HTMLElement>()
 let graph: Graph | null = null
 
@@ -62,6 +64,21 @@ function initGraph() {
   const layoutedData = applyDagreLayout(nodes, edges)
   graph.fromJSON(layoutedData)
   graph.centerContent()
+
+  graph.on('node:click', ({ node }) => {
+    const nodeData = node.getData() ?? {}
+    const label = node.attr<string>('text/text') || ''
+    const nodeType = nodeData.nodeType
+    selectNode({
+      description: nodeData.description,
+      id: node.id,
+      label,
+      nodeType: nodeType === 'gate' ? 'gate' : 'event',
+      probability: nodeData.probability
+    })
+  })
+
+  graph.on('blank:click', clearSelection)
 }
 
 function registerFaultTreeEdge() {
