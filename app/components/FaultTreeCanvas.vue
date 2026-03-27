@@ -4,6 +4,7 @@ import dagre from '@dagrejs/dagre'
 
 import type { GraphEdge, GraphNode, GraphNodePosition } from '~/types/faultTree'
 
+import { registerFaultTreeShapes } from '~/constants/faultTreeGraph'
 import { mockFaultTreeData } from '~/constants/faultTreeMock'
 
 const { clearSelection, selectNode } = useFaultTree()
@@ -57,8 +58,7 @@ function initGraph() {
   graph.bindKey('ctrl+z', () => graph?.undo())
   graph.bindKey('ctrl+y', () => graph?.redo())
 
-  registerGateNode()
-  registerFaultTreeEdge()
+  registerFaultTreeShapes()
 
   const { edges, nodes } = transformFaultTreeData()
   const layoutedData = applyDagreLayout(nodes, edges)
@@ -79,38 +79,6 @@ function initGraph() {
   })
 
   graph.on('blank:click', clearSelection)
-}
-
-function registerFaultTreeEdge() {
-  Graph.registerEdge('fault-tree-edge', {
-    connector: { args: { radius: 8 }, name: 'rounded' },
-    router: { name: 'orth' }
-  })
-}
-
-function registerGateNode() {
-  Graph.registerNode('gate-node', {
-    markup: [
-      {
-        attrs: { fill: '#fef3c7', refPoints: '0,10 10,0 20,10 10,20', stroke: '#f59e0b', 'stroke-width': 2 },
-        tagName: 'polygon'
-      },
-      {
-        attrs: {
-          'dominant-baseline': 'middle',
-          fill: '#92400e',
-          'font-size': 14,
-          'font-weight': 'bold',
-          ref: 'label',
-          'text-anchor': 'middle'
-        },
-        tagName: 'text'
-      }
-    ],
-    propHooks(metadata: Record<string, unknown>) {
-      return { label: metadata.label as string }
-    }
-  })
 }
 
 function transformFaultTreeData(): { edges: GraphEdge[]; nodes: GraphNode[] } {
