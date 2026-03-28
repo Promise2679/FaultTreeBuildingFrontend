@@ -91,14 +91,14 @@ function transformFaultTreeData(): { edges: GraphEdge[]; nodes: GraphNode[] } {
     const nodeType = node.nodeType === 'GATE' ? 'gate' : 'event'
     const graphNode: GraphNode = {
       data: { description: node.nodeName, nodeType, probability: undefined },
-      id: node.node_Id,
+      id: node.nodeId,
       label: node.nodeName,
       nodeType,
       size: nodeType === 'gate' ? { height: 40, width: 40 } : { height: 50, width: 140 }
     }
     graphNodes.push(graphNode)
 
-    if (node.parentId) graphEdges.push({ shape: 'fault-tree-edge', source: node.parentId, target: node.node_Id })
+    if (node.parentId) graphEdges.push({ shape: 'fault-tree-edge', source: node.parentId, target: node.nodeId })
   }
 
   return { edges: graphEdges, nodes: graphNodes }

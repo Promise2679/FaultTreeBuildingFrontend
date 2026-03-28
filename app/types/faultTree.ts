@@ -23,20 +23,3 @@ export interface GraphNodePosition {
   x: number
   y: number
 }
-
-export interface HandlerFaultTreeNodeResponse {
-  hasChildren: number
-  node_Id: string
-  nodeName: string
-  nodeType: string
-  parentId: string
-}
-
-export interface HandlerFaultTreeResponse {
-  deviceType: string
-  id: number
-  nodes: HandlerFaultTreeNodeResponse[]
-  rootNodeId: string
-  topEvent: string
-  treeName: string
-}
