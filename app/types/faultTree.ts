@@ -8,13 +8,13 @@ export interface GraphNode {
   data?: GraphNodeData
   id: string
   label?: string
-  nodeType?: 'event' | 'gate'
   position?: GraphNodePosition
   size: { height: number; width: number }
 }
 
 export interface GraphNodeData {
   description?: string
+  hasChildren?: number
   nodeType?: string
   probability?: number
 }

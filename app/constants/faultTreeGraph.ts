@@ -32,3 +32,31 @@ export function registerFaultTreeShapes() {
   Graph.registerNode('gate-node', GATE_NODE_CONFIG)
   Graph.registerEdge('fault-tree-edge', FAULT_TREE_EDGE_CONFIG)
 }
+
+export const ADD_BUTTON_MARKUP = [
+  {
+    attrs: {
+      cursor: 'pointer',
+      cx: 0,
+      cy: 0,
+      fill: '#22c55e',
+      r: 10,
+      stroke: '#16a34a',
+      'stroke-width': 1.5
+    },
+    tagName: 'circle'
+  },
+  {
+    attrs: {
+      cursor: 'pointer',
+      'dominant-baseline': 'central',
+      fill: '#ffffff',
+      'font-size': 16,
+      'font-weight': 'bold',
+      'pointer-events': 'none',
+      'text-anchor': 'middle'
+    },
+    tagName: 'text',
+    textContent: '+'
+  }
+]
