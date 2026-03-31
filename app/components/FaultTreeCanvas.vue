@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Graph, History, Keyboard } from '@antv/x6'
+import { Graph, Keyboard } from '@antv/x6'
 import dagre from '@dagrejs/dagre'
 
 import type { GraphEdge, GraphNode, GraphNodeData, GraphNodePosition } from '~/types/faultTree'
@@ -10,15 +10,22 @@ import { mockFaultTreeData } from '~/constants/faultTreeMock'
 const { clearSelection, selectNode } = useFaultTree()
 
 const containerRef = ref<HTMLElement>()
+const graphState = ref({ edges: [] as GraphEdge[], nodes: [] as GraphNode[] })
 
-const currentNodes: GraphNode[] = []
-const currentEdges: GraphEdge[] = []
+const { canRedo, canUndo, commit, redo, undo } = useManualRefHistory(graphState, {
+  capacity: 50,
+  clone: true
+})
 
 let graph: Graph | null = null
+
+watch(graphState, renderGraph)
 
 useEventListener('resize', () => {
   graph?.resize(window.innerWidth, window.innerHeight)
 })
+
+useEventListener('keydown', handleKeyDown)
 
 onMounted(initGraph)
 
@@ -27,7 +34,7 @@ onUnmounted(() => {
 })
 
 function addChildNode(parentId: string) {
-  const parentNode = currentNodes.find(n => n.id === parentId)
+  const parentNode = graphState.value.nodes.find(n => n.id === parentId)
   if (!parentNode?.data?.nodeType) return
 
   const isParentGate = parentNode.data.nodeType === 'gate'
@@ -44,8 +51,9 @@ function addChildNode(parentId: string) {
 
   const newEdge: GraphEdge = { shape: 'fault-tree-edge', source: parentId, target: newNodeId }
 
-  currentNodes.push(newNode)
-  currentEdges.push(newEdge)
+  graphState.value.nodes.push(newNode)
+  graphState.value.edges.push(newEdge)
+  commit()
 
   if (typeof parentNode.data.hasChildren === 'number') parentNode.data.hasChildren++
 
@@ -76,6 +84,18 @@ function canAddChild(nodeType: string, nodeData: GraphNodeData) {
   return false
 }
 
+function handleKeyDown(e: KeyboardEvent) {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+    e.preventDefault()
+    if (e.shiftKey && canRedo.value) redo()
+    else if (canUndo.value) undo()
+  }
+  if ((e.ctrlKey || e.metaKey) && e.key === 'y') {
+    e.preventDefault()
+    if (canRedo.value) redo()
+  }
+}
+
 function initGraph() {
   if (!containerRef.value) return
 
@@ -86,10 +106,6 @@ function initGraph() {
   })
 
   graph.use(new Keyboard({ enabled: true }))
-  graph.use(new History({ enabled: true }))
-
-  graph.bindKey('ctrl+z', () => graph?.undo())
-  graph.bindKey('ctrl+y', () => graph?.redo())
 
   registerFaultTreeShapes()
   transformFaultTreeData()
@@ -138,7 +154,7 @@ function initGraph() {
 function renderGraph() {
   if (!graph) return
 
-  const layoutedData = applyDagreLayout(currentNodes, currentEdges)
+  const layoutedData = applyDagreLayout(graphState.value.nodes, graphState.value.edges)
   graph.fromJSON(layoutedData)
   graph.centerContent()
 }
@@ -154,10 +170,12 @@ function transformFaultTreeData() {
       label: node.nodeName,
       size: nodeType === 'gate' ? { height: 40, width: 40 } : { height: 50, width: 140 }
     }
-    currentNodes.push(graphNode)
+    graphState.value.nodes.push(graphNode)
 
-    if (node.parentId) currentEdges.push({ shape: 'fault-tree-edge', source: node.parentId, target: node.nodeId })
+    if (node.parentId)
+      graphState.value.edges.push({ shape: 'fault-tree-edge', source: node.parentId, target: node.nodeId })
   }
+  commit()
 }
 </script>
 

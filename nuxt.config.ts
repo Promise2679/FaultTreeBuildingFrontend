@@ -8,5 +8,5 @@ export default defineNuxtConfig({
   modules: ['@nuxt/eslint', '@nuxt/ui', '@vueuse/nuxt'],
   routeRules: { '/': { prerender: true } },
   ssr: false,
-  vite: { optimizeDeps: { include: ['@antv/x6'] } }
+  vite: { optimizeDeps: { include: ['@antv/x6', 'es-toolkit'] } }
 })
