@@ -5,21 +5,28 @@ import dagre from '@dagrejs/dagre'
 import type { GraphEdge, GraphNode, GraphNodeData, GraphNodePosition } from '~/types/faultTree'
 
 import { ADD_BUTTON_MARKUP, registerFaultTreeShapes } from '~/constants/faultTreeGraph'
-import { mockFaultTreeData } from '~/constants/faultTreeMock'
 
-const { clearSelection, selectNode } = useFaultTree()
+const {
+  addChildNode,
+  canAddChild,
+  canRedo,
+  canUndo,
+  clearSelection,
+  deleteNodeWithDescendants,
+  graphState,
+  isRootNode,
+  redo,
+  selectedNode,
+  selectNode,
+  transformFaultTreeData,
+  undo
+} = useFaultTree()
 
 const containerRef = ref<HTMLElement>()
-const graphState = ref({ edges: [] as GraphEdge[], nodes: [] as GraphNode[] })
-
-const { canRedo, canUndo, commit, redo, undo } = useManualRefHistory(graphState, {
-  capacity: 50,
-  clone: true
-})
 
 let graph: Graph | null = null
 
-watch(graphState, renderGraph)
+watchDeep(graphState, renderGraph)
 
 useEventListener('resize', () => {
   graph?.resize(window.innerWidth, window.innerHeight)
@@ -32,33 +39,6 @@ onMounted(initGraph)
 onUnmounted(() => {
   graph?.dispose()
 })
-
-function addChildNode(parentId: string) {
-  const parentNode = graphState.value.nodes.find(n => n.id === parentId)
-  if (!parentNode?.data?.nodeType) return
-
-  const isParentGate = parentNode.data.nodeType === 'gate'
-  const newNodeType = isParentGate ? 'event' : 'gate'
-  const newLabel = isParentGate ? '新事件' : 'AND'
-  const newNodeId = crypto.randomUUID()
-
-  const newNode: GraphNode = {
-    data: { description: newLabel, hasChildren: 0, nodeType: newNodeType, probability: undefined },
-    id: newNodeId,
-    label: newLabel,
-    size: newNodeType === 'gate' ? { height: 40, width: 40 } : { height: 50, width: 140 }
-  }
-
-  const newEdge: GraphEdge = { shape: 'fault-tree-edge', source: parentId, target: newNodeId }
-
-  graphState.value.nodes.push(newNode)
-  graphState.value.edges.push(newEdge)
-  commit()
-
-  if (typeof parentNode.data.hasChildren === 'number') parentNode.data.hasChildren++
-
-  renderGraph()
-}
 
 function applyDagreLayout(nodes: GraphNode[], edges: GraphEdge[]) {
   const g = new dagre.graphlib.Graph()
@@ -78,12 +58,6 @@ function applyDagreLayout(nodes: GraphNode[], edges: GraphEdge[]) {
   return { edges, nodes }
 }
 
-function canAddChild(nodeType: string, nodeData: GraphNodeData) {
-  if (nodeType === 'gate') return true
-  if (nodeType === 'event') return !nodeData.hasChildren
-  return false
-}
-
 function handleKeyDown(e: KeyboardEvent) {
   if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
     e.preventDefault()
@@ -93,6 +67,10 @@ function handleKeyDown(e: KeyboardEvent) {
   if ((e.ctrlKey || e.metaKey) && e.key === 'y') {
     e.preventDefault()
     if (canRedo.value) redo()
+  }
+  if (e.key === 'Delete' && selectedNode.value && !isRootNode(selectedNode.value.id)) {
+    e.preventDefault()
+    deleteNodeWithDescendants(selectedNode.value.id)
   }
 }
 
@@ -130,6 +108,7 @@ function initGraph() {
   graph.on('node:mouseenter', ({ node }) => {
     const nodeData = node.getData<GraphNodeData>()
     const nodeType = nodeData.nodeType ?? ''
+
     if (!canAddChild(nodeType, nodeData)) return
 
     node.addTools({
@@ -147,35 +126,18 @@ function initGraph() {
   })
 
   graph.on('node:mouseleave', ({ node }) => {
-    if (node.hasTool('button')) node.removeTool('button')
+    node.removeTools()
   })
 }
 
 function renderGraph() {
   if (!graph) return
 
-  const layoutedData = applyDagreLayout(graphState.value.nodes, graphState.value.edges)
+  const nodes = graphState.value.nodes.map(n => ({ ...n }))
+  const edges = graphState.value.edges.map(e => ({ ...e }))
+  const layoutedData = applyDagreLayout(nodes, edges)
   graph.fromJSON(layoutedData)
   graph.centerContent()
-}
-
-function transformFaultTreeData() {
-  const { nodes } = mockFaultTreeData
-
-  for (const node of nodes) {
-    const nodeType = node.nodeType === 'GATE' ? 'gate' : 'event'
-    const graphNode: GraphNode = {
-      data: { description: node.nodeName, hasChildren: node.hasChildren, nodeType, probability: undefined },
-      id: node.nodeId,
-      label: node.nodeName,
-      size: nodeType === 'gate' ? { height: 40, width: 40 } : { height: 50, width: 140 }
-    }
-    graphState.value.nodes.push(graphNode)
-
-    if (node.parentId)
-      graphState.value.edges.push({ shape: 'fault-tree-edge', source: node.parentId, target: node.nodeId })
-  }
-  commit()
 }
 </script>
 
