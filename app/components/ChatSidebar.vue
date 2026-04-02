@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const [isCollapsed, toggle] = useToggle()
+const isHistoryOpen = ref(false)
 
 const {
   chatMessages,
@@ -20,12 +21,15 @@ const {
   >
     <div class="flex items-center justify-between border-b border-neutral-200 p-3">
       <span v-show="!isCollapsed" class="font-medium whitespace-nowrap text-neutral-700">AI 助手</span>
-      <UButton
-        :icon="isCollapsed ? 'i-lucide-panel-right' : 'i-lucide-panel-left-close'"
-        size="sm"
-        variant="ghost"
-        @click="toggle()"
-      />
+      <div class="flex items-center gap-1">
+        <UButton v-if="!isCollapsed" icon="i-lucide-history" size="sm" variant="ghost" @click="isHistoryOpen = true" />
+        <UButton
+          :icon="isCollapsed ? 'i-lucide-panel-right' : 'i-lucide-panel-left-close'"
+          size="sm"
+          variant="ghost"
+          @click="toggle()"
+        />
+      </div>
     </div>
 
     <div v-show="!isCollapsed" class="flex-1 overflow-auto p-3">
@@ -60,5 +64,7 @@ const {
         </template>
       </UChatPrompt>
     </div>
+
+    <ChatHistoryDrawer v-model:open="isHistoryOpen" />
   </div>
 </template>
