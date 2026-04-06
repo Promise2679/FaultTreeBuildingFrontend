@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { Graph, Keyboard } from '@antv/x6'
+import { Export, Graph, Keyboard } from '@antv/x6'
 import dagre from '@dagrejs/dagre'
 
 import type { GraphEdge, GraphNode, GraphNodeData, GraphNodePosition } from '~/types/faultTree'
 
 import { ADD_BUTTON_MARKUP, registerFaultTreeShapes } from '~/constants/faultTreeGraph'
+
+const { setGraph } = useGraphInstance()
 
 const {
   addChildNode,
@@ -22,9 +24,8 @@ const {
   undo
 } = useFaultTree()
 
-const containerRef = ref<HTMLElement>()
-
 let graph: Graph | null = null
+const containerRef = ref<HTMLElement>()
 
 watchDeep(graphState, renderGraph)
 
@@ -84,6 +85,9 @@ function initGraph() {
   })
 
   graph.use(new Keyboard({ enabled: true }))
+  graph.use(new Export())
+
+  setGraph(graph)
 
   registerFaultTreeShapes()
   transformFaultTreeData()
