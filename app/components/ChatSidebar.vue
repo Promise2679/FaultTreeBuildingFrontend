@@ -1,6 +1,5 @@
 <script setup lang="ts">
-const [isCollapsed, toggle] = useToggle()
-const isHistoryOpen = ref(false)
+const { isCollapsed } = useChatSidebar()
 
 const {
   chatMessages,
@@ -16,22 +15,9 @@ const {
 
 <template>
   <div
-    class="fixed top-0 left-0 z-50 flex h-full flex-col border-r border-neutral-200 bg-neutral-50 shadow-lg transition-[width] duration-300 ease-out"
-    :class="isCollapsed ? 'w-14' : 'w-80'"
+    class="fixed top-14 left-0 z-30 flex h-[calc(100vh-3.5rem)] flex-col border-r border-neutral-200 bg-neutral-50 shadow-lg"
+    :class="isCollapsed ? 'w-0' : 'w-80'"
   >
-    <div class="flex items-center justify-between border-b border-neutral-200 p-3">
-      <span v-show="!isCollapsed" class="font-medium whitespace-nowrap text-neutral-700">AI 助手</span>
-      <div class="flex items-center gap-1">
-        <UButton v-if="!isCollapsed" icon="i-lucide-history" size="sm" variant="ghost" @click="isHistoryOpen = true" />
-        <UButton
-          :icon="isCollapsed ? 'i-lucide-panel-right' : 'i-lucide-panel-left-close'"
-          size="sm"
-          variant="ghost"
-          @click="toggle()"
-        />
-      </div>
-    </div>
-
     <div v-show="!isCollapsed" class="flex-1 overflow-auto p-3">
       <UChatMessages :messages="chatMessages" :user="{ variant: 'solid' }" :assistant="{ variant: 'soft' }" />
     </div>
@@ -64,7 +50,5 @@ const {
         </template>
       </UChatPrompt>
     </div>
-
-    <ChatHistoryDrawer v-model:open="isHistoryOpen" />
   </div>
 </template>
