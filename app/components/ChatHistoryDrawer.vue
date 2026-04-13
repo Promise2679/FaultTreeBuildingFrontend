@@ -10,10 +10,6 @@ const historyList = ref([
 function handleClose() {
   isOpen.value = false
 }
-
-function selectHistory() {
-  handleClose()
-}
 </script>
 
 <template>
@@ -24,7 +20,7 @@ function selectHistory() {
           v-for="item in historyList"
           :key="item.id"
           class="cursor-pointer rounded-lg border border-neutral-200 bg-white p-3 transition-colors hover:border-neutral-300 hover:bg-neutral-50"
-          @click="selectHistory"
+          @click="handleClose"
         >
           <div class="flex items-center justify-between">
             <span class="font-medium text-neutral-900">{{ item.title }}</span>

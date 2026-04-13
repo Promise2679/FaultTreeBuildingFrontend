@@ -3,7 +3,7 @@ import type { KnowledgeBase, KnowledgeBaseFile } from '~/types/knowledgeBase'
 type KnowledgeBaseView = 'detail' | 'list'
 
 const view = ref<KnowledgeBaseView>('list')
-const currentKnowledgeBase = ref<KnowledgeBase | null>(null)
+const currentKnowledgeBase = ref<KnowledgeBase>()
 
 let nextKbId = 4
 let nextFileId = 7
@@ -49,7 +49,7 @@ export function useKnowledgeBase() {
 }
 
 function backToList() {
-  currentKnowledgeBase.value = null
+  currentKnowledgeBase.value = undefined
   view.value = 'list'
 }
 
@@ -92,7 +92,7 @@ function openDetail(kb: KnowledgeBase) {
 
 function resetView() {
   view.value = 'list'
-  currentKnowledgeBase.value = null
+  currentKnowledgeBase.value = undefined
 }
 
 function uploadFile(file: File) {
