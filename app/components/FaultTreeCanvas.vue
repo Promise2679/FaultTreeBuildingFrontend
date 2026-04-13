@@ -96,13 +96,13 @@ function initGraph() {
 
   graph.on('node:click', ({ node }) => {
     const nodeData = node.getData<GraphNodeData>()
-    const label = node.attr<string>('text/text')
-    const nodeType = nodeData.nodeType
+    const isGate = nodeData.nodeType === 'gate'
+    const label = isGate ? (nodeData.gate ?? 'AND') : node.attr<string>('text/text') || ''
     selectNode({
       description: nodeData.description,
       id: node.id,
       label,
-      nodeType: nodeType === 'gate' ? 'gate' : 'event',
+      nodeType: isGate ? 'gate' : 'event',
       probability: nodeData.probability
     })
   })

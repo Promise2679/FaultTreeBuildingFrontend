@@ -1,27 +1,7 @@
 import { Graph } from '@antv/x6'
 
-const GATE_NODE_CONFIG = {
-  markup: [
-    {
-      attrs: { fill: '#fef3c7', refPoints: '0,10 10,0 20,10 10,20', stroke: '#f59e0b', 'stroke-width': 2 },
-      tagName: 'polygon'
-    },
-    {
-      attrs: {
-        'dominant-baseline': 'middle',
-        fill: '#92400e',
-        'font-size': 14,
-        'font-weight': 'bold',
-        ref: 'label',
-        'text-anchor': 'middle'
-      },
-      tagName: 'text'
-    }
-  ],
-  propHooks(metadata: Record<string, unknown>) {
-    return { label: metadata.label as string }
-  }
-}
+const OR_GATE_PATH = 'M 0 0 L 40 0 L 40 25 Q 40 45 20 50 Q 0 45 0 25 Z'
+const AND_GATE_PATH = 'M 0 50 L 0 25 Q 0 0 20 0 Q 40 0 40 25 L 40 50 Z'
 
 const FAULT_TREE_EDGE_CONFIG = {
   connector: { args: { radius: 8 }, name: 'rounded' },
@@ -29,7 +9,34 @@ const FAULT_TREE_EDGE_CONFIG = {
 }
 
 export function registerFaultTreeShapes() {
-  Graph.registerNode('gate-node', GATE_NODE_CONFIG)
+  Graph.registerNode('or-gate-node', {
+    attrs: {
+      body: {
+        fill: '#fef3c7',
+        refD: OR_GATE_PATH,
+        stroke: '#f59e0b',
+        strokeWidth: 2
+      }
+    },
+    height: 50,
+    inherit: 'path',
+    width: 40
+  })
+
+  Graph.registerNode('and-gate-node', {
+    attrs: {
+      body: {
+        fill: '#dbeafe',
+        refD: AND_GATE_PATH,
+        stroke: '#3b82f6',
+        strokeWidth: 2
+      }
+    },
+    height: 50,
+    inherit: 'path',
+    width: 40
+  })
+
   Graph.registerEdge('fault-tree-edge', FAULT_TREE_EDGE_CONFIG)
 }
 

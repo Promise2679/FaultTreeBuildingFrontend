@@ -46,10 +46,17 @@ function addChildNode(parentId: string) {
   const newNodeId = crypto.randomUUID()
 
   const newNode: GraphNode = {
-    data: { description: newLabel, hasChildren: 0, nodeType: newNodeType, probability: undefined },
+    data: {
+      description: newLabel,
+      gate: isParentGate ? undefined : 'AND',
+      hasChildren: 0,
+      nodeType: newNodeType,
+      probability: undefined
+    },
     id: newNodeId,
-    label: newLabel,
-    size: newNodeType === 'gate' ? { height: 40, width: 40 } : { height: 50, width: 140 }
+    label: isParentGate ? newLabel : undefined,
+    shape: isParentGate ? undefined : 'and-gate-node',
+    size: newNodeType === 'gate' ? { height: 50, width: 40 } : { height: 50, width: 140 }
   }
 
   const newEdge: GraphEdge = { shape: 'fault-tree-edge', source: parentId, target: newNodeId }
@@ -107,6 +114,10 @@ function deleteNodeWithDescendants(nodeId: string) {
   if (selectedNode.value && idsToDelete.has(selectedNode.value.id)) clearSelection()
 }
 
+function getGateShape(gateName: string) {
+  return gateName === 'OR' ? 'or-gate-node' : 'and-gate-node'
+}
+
 function isRootNode(nodeId: string) {
   return !graphState.value.edges.some(e => e.target === nodeId)
 }
@@ -120,12 +131,20 @@ function transformFaultTreeData() {
   const { nodes } = mockFaultTreeData
 
   for (const node of nodes) {
-    const nodeType = node.nodeType === 'GATE' ? 'gate' : 'event'
+    const isGate = node.nodeType === 'GATE'
+    const nodeType = isGate ? 'gate' : 'event'
     const graphNode: GraphNode = {
-      data: { description: node.nodeName, hasChildren: node.hasChildren, nodeType, probability: undefined },
+      data: {
+        description: node.nodeName,
+        gate: isGate ? node.nodeName : undefined,
+        hasChildren: node.hasChildren,
+        nodeType,
+        probability: undefined
+      },
       id: node.nodeId,
-      label: node.nodeName,
-      size: nodeType === 'gate' ? { height: 40, width: 40 } : { height: 50, width: 140 }
+      label: isGate ? undefined : node.nodeName,
+      shape: isGate ? getGateShape(node.nodeName) : undefined,
+      size: isGate ? { height: 50, width: 40 } : { height: 50, width: 140 }
     }
     graphState.value.nodes.push(graphNode)
 

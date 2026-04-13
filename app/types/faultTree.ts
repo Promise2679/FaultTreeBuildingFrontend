@@ -9,11 +9,13 @@ export interface GraphNode {
   id: string
   label?: string
   position?: GraphNodePosition
+  shape?: string
   size: { height: number; width: number }
 }
 
 export interface GraphNodeData {
   description?: string
+  gate?: string
   hasChildren?: number
   nodeType?: string
   probability?: number
