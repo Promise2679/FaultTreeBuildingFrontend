@@ -2,6 +2,7 @@
 const { exportAsImage } = useGraphInstance()
 const { isCollapsed, toggle } = useChatSidebar()
 const isHistoryOpen = ref(false)
+const isKnowledgeBaseOpen = ref(false)
 </script>
 
 <template>
@@ -14,6 +15,7 @@ const isHistoryOpen = ref(false)
         @click="toggle()"
       />
       <UButton icon="i-lucide-history" size="sm" variant="ghost" @click="isHistoryOpen = true" />
+      <UButton icon="i-lucide-book-open" size="sm" variant="ghost" @click="isKnowledgeBaseOpen = true" />
     </div>
     <div class="flex-1 text-center font-medium text-neutral-700">故障树编辑器</div>
     <div class="flex items-center gap-1 px-3">
@@ -22,4 +24,5 @@ const isHistoryOpen = ref(false)
   </header>
 
   <ChatHistoryDrawer v-model:open="isHistoryOpen" />
+  <KnowledgeBaseModal v-model:open="isKnowledgeBaseOpen" />
 </template>

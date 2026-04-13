@@ -4,7 +4,12 @@ import betterTailwindcss from 'eslint-plugin-better-tailwindcss'
 import { withNuxt } from './.nuxt/eslint.config.mjs'
 
 export default withNuxt([
-  ...promise({ rules: { 'vue/no-multiple-template-root': 'off' } }),
+  ...promise({
+    rules: {
+      '@typescript-eslint/no-dynamic-delete': 'off',
+      'vue/no-multiple-template-root': 'off'
+    }
+  }),
   {
     plugins: { 'better-tailwindcss': betterTailwindcss },
     rules: {
