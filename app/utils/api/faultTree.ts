@@ -7,37 +7,32 @@ import type {
   ModifyFaultTreeRequest
 } from '~/types/api/faultTree'
 
-import { apiBaseUrl } from './request'
+import { apiFetch } from './request'
 
 export const faultTreeApi = {
   delete(id: number) {
-    return useFetch<CommonResponse>(`/fault-trees/${id}`, {
-      baseURL: apiBaseUrl,
+    return apiFetch<CommonResponse>(`/fault-trees/${id}`, {
       method: 'DELETE'
     })
   },
   generate(data: GenerateFaultTreeRequest) {
-    return useFetch<FaultTreeDetailResponse>('/fault-trees/generate', {
-      baseURL: apiBaseUrl,
+    return apiFetch<FaultTreeDetailResponse>('/fault-trees/generate', {
       body: data,
       method: 'POST'
     })
   },
   getById(id: number) {
-    return useFetch<FaultTreeDetailResponse>(`/fault-trees/${id}`, {
-      baseURL: apiBaseUrl,
+    return apiFetch<FaultTreeDetailResponse>(`/fault-trees/${id}`, {
       method: 'GET'
     })
   },
   getHistory() {
-    return useFetch<FaultTreeHistoryListResponse>('/fault-trees', {
-      baseURL: apiBaseUrl,
+    return apiFetch<FaultTreeHistoryListResponse>('/fault-trees', {
       method: 'GET'
     })
   },
   validate(data: ModifyFaultTreeRequest) {
-    return useFetch<ModifyFaultTreeDetailResponse>('/fault-trees/validate', {
-      baseURL: apiBaseUrl,
+    return apiFetch<ModifyFaultTreeDetailResponse>('/fault-trees/validate', {
       body: data,
       method: 'POST'
     })

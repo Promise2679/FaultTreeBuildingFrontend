@@ -6,31 +6,27 @@ import type {
   UpdateNodeRequest
 } from '~/types/api/faultTreeNode'
 
-import { apiBaseUrl } from './request'
+import { apiFetch } from './request'
 
 export const faultTreeNodeApi = {
   create(faultTreeId: number, data: CreateNodeRequest) {
-    return useFetch<CreateNodeDetailResponse>(`/fault-trees/${faultTreeId}/nodes`, {
-      baseURL: apiBaseUrl,
+    return apiFetch<CreateNodeDetailResponse>(`/fault-trees/${faultTreeId}/nodes`, {
       body: data,
       method: 'POST'
     })
   },
   delete(faultTreeId: number, nodeId: string) {
-    return useFetch<CommonResponse>(`/fault-trees/${faultTreeId}/nodes/${nodeId}`, {
-      baseURL: apiBaseUrl,
+    return apiFetch<CommonResponse>(`/fault-trees/${faultTreeId}/nodes/${nodeId}`, {
       method: 'DELETE'
     })
   },
   getById(faultTreeId: number, nodeId: string) {
-    return useFetch<GetNodeDetailResponse>(`/fault-trees/${faultTreeId}/nodes/${nodeId}`, {
-      baseURL: apiBaseUrl,
+    return apiFetch<GetNodeDetailResponse>(`/fault-trees/${faultTreeId}/nodes/${nodeId}`, {
       method: 'GET'
     })
   },
   update(faultTreeId: number, nodeId: string, data: UpdateNodeRequest) {
-    return useFetch<CommonResponse>(`/fault-trees/${faultTreeId}/nodes/${nodeId}`, {
-      baseURL: apiBaseUrl,
+    return apiFetch<CommonResponse>(`/fault-trees/${faultTreeId}/nodes/${nodeId}`, {
       body: data,
       method: 'PUT'
     })

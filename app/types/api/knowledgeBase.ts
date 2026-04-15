@@ -1,7 +1,7 @@
 import type { CommonResponse } from './common'
 
 export interface CreateKnowledgeBaseRequest {
-  knowledgeBaseName: string
+  knowledge_base_name: string
 }
 
 export interface KnowledgeBaseDetailDataResponse {

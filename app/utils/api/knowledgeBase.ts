@@ -6,43 +6,38 @@ import type {
   RenameKnowledgeBaseRequest
 } from '~/types/api/knowledgeBase'
 
-import { apiBaseUrl } from './request'
+import { apiFetch } from './request'
 
 export const knowledgeBaseApi = {
   create(data: CreateKnowledgeBaseRequest) {
-    return useFetch<CommonResponse>('/knowledge-bases', {
-      baseURL: apiBaseUrl,
+    return apiFetch<CommonResponse>('/knowledge-bases', {
       body: data,
       method: 'POST'
     })
   },
   delete(name: string) {
-    return useFetch<CommonResponse>(`/knowledge-bases/${name}`, {
-      baseURL: apiBaseUrl,
+    return apiFetch<CommonResponse>(`/knowledge-bases/${encodeURIComponent(name)}`, {
       method: 'DELETE'
     })
   },
   deleteFile(name: string, fileName: string) {
-    return useFetch<CommonResponse>(`/knowledge-bases/${name}/files/${fileName}`, {
-      baseURL: apiBaseUrl,
-      method: 'DELETE'
-    })
+    return apiFetch<CommonResponse>(
+      `/knowledge-bases/${encodeURIComponent(name)}/files/${encodeURIComponent(fileName)}`,
+      { method: 'DELETE' }
+    )
   },
   getByName(name: string) {
-    return useFetch<KnowledgeBaseDetailResponse>(`/knowledge-bases/${name}`, {
-      baseURL: apiBaseUrl,
+    return apiFetch<KnowledgeBaseDetailResponse>(`/knowledge-bases/${encodeURIComponent(name)}`, {
       method: 'GET'
     })
   },
   getList() {
-    return useFetch<KnowledgeBaseListDetailResponse>('/knowledge-bases', {
-      baseURL: apiBaseUrl,
+    return apiFetch<KnowledgeBaseListDetailResponse>('/knowledge-bases', {
       method: 'GET'
     })
   },
   rename(name: string, data: RenameKnowledgeBaseRequest) {
-    return useFetch<CommonResponse>(`/knowledge-bases/${name}`, {
-      baseURL: apiBaseUrl,
+    return apiFetch<CommonResponse>(`/knowledge-bases/${encodeURIComponent(name)}`, {
       body: data,
       method: 'PUT'
     })
@@ -52,8 +47,7 @@ export const knowledgeBaseApi = {
     formData.append('knowledge_base_name', name)
     formData.append('file', file)
 
-    return useFetch<CommonResponse>('/knowledge-bases/files', {
-      baseURL: apiBaseUrl,
+    return apiFetch<CommonResponse>('/knowledge-bases/files', {
       body: formData,
       method: 'POST'
     })
