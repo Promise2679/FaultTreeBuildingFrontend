@@ -1,8 +1,7 @@
 import type { ChatMessage, UploadedFile } from '~/types/chat'
 
 const messages = ref<ChatMessage[]>([
-  { content: '你好！我是故障树分析助手，有什么可以帮助你的吗？', id: '1', role: 'assistant' },
-  { content: '帮我创建一个串联系统', id: '2', role: 'user' }
+  { content: '你好！我是故障树分析助手，有什么可以帮助你的吗？', id: '1', role: 'assistant' }
 ])
 
 const chatMessages = computed(() =>

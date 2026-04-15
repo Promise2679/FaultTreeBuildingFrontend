@@ -27,9 +27,9 @@ const statusConfig: Record<
   KnowledgeBaseFileStatus,
   { color: 'error' | 'info' | 'success' | 'warning'; label: string }
 > = {
-  parsed: { color: 'success', label: '已解析' },
   parseFailed: { color: 'error', label: '解析失败' },
   parsing: { color: 'info', label: '解析中' },
+  ready: { color: 'success', label: '已解析' },
   uploaded: { color: 'success', label: '已上传' }
 }
 

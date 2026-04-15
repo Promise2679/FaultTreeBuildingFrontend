@@ -8,4 +8,4 @@ export interface KnowledgeBaseFile {
   status: KnowledgeBaseFileStatus
 }
 
-export type KnowledgeBaseFileStatus = 'parsed' | 'parseFailed' | 'parsing' | 'uploaded'
+export type KnowledgeBaseFileStatus = 'parseFailed' | 'parsing' | 'ready' | 'uploaded'

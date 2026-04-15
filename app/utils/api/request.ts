@@ -12,7 +12,6 @@ function convertKeysToCamelCase(obj: unknown): unknown {
 
 export const apiFetch = $fetch.create({
   baseURL: apiBaseUrl,
-  headers: { 'Content-Type': 'application/json' },
   onResponse({ response }) {
     response._data = convertKeysToCamelCase(response._data)
   },
