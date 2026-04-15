@@ -147,7 +147,7 @@ async function initGraph() {
 async function loadFaultTreeByGenerate(faultContent: string) {
   loading.value = true
   try {
-    const res = await faultTreeApi.generate({ faultContent })
+    const res = await faultTreeApi.generate({ fault_content: faultContent })
     transformFaultTreeData(res.data)
     renderGraph()
   } finally {
