@@ -6,16 +6,16 @@ import type { KnowledgeBaseFile, KnowledgeBaseFileStatus } from '~/types/knowled
 const UBadge = resolveComponent('UBadge')
 const UButton = resolveComponent('UButton')
 
-const { backToList, currentFiles, currentKnowledgeBase, deleteFile, uploadFile } = useKnowledgeBase()
+const { backToList, currentFiles, currentKnowledgeBase, deleteFile, loading, uploadFile } = useKnowledgeBase()
 
 const fileInputRef = ref<HTMLInputElement | null>(null)
 
-function handleFileChange(event: Event) {
+async function handleFileChange(event: Event) {
   const input = event.target as HTMLInputElement
   const files = input.files
   if (!files) return
 
-  for (const file of files) uploadFile(file)
+  for (const file of files) await uploadFile(file)
   input.value = ''
 }
 
@@ -34,7 +34,6 @@ const statusConfig: Record<
 }
 
 const columns: Array<TableColumn<KnowledgeBaseFile>> = [
-  { accessorKey: 'id', header: 'ID', meta: { class: { td: 'text-muted', th: 'w-20' } } },
   { accessorKey: 'name', header: '文件名' },
   {
     accessorKey: 'status',
@@ -51,8 +50,8 @@ const columns: Array<TableColumn<KnowledgeBaseFile>> = [
       h(UButton, {
         color: 'error',
         icon: 'i-lucide-trash-2',
-        onClick: () => {
-          deleteFile(row.original.id)
+        onClick: async () => {
+          await deleteFile(row.original.name)
         },
         size: 'xs',
         variant: 'ghost'
@@ -84,7 +83,11 @@ const columns: Array<TableColumn<KnowledgeBaseFile>> = [
       <span class="ml-4">共 {{ currentFiles.length }} 个文件</span>
     </div>
 
-    <UTable v-if="currentFiles.length" :data="currentFiles" :columns="columns" />
+    <div v-if="loading" class="flex items-center justify-center py-12">
+      <UIcon name="i-lucide-loader-circle" class="size-6 animate-spin" />
+      <span class="ml-2 text-sm text-neutral-500">加载中...</span>
+    </div>
+    <UTable v-else-if="currentFiles.length" :data="currentFiles" :columns="columns" />
     <div v-else class="flex flex-col items-center justify-center py-12">
       <UIcon name="i-lucide-file-x" class="mb-2 size-10" />
       <p>暂无文件，点击上方按钮上传</p>

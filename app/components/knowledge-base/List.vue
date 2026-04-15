@@ -5,30 +5,28 @@ import type { KnowledgeBase } from '~/types/knowledgeBase'
 
 const UButton = resolveComponent('UButton')
 
-const { createKnowledgeBase, deleteKnowledgeBase, knowledgeBases, openDetail } = useKnowledgeBase()
+const { createKnowledgeBase, deleteKnowledgeBase, fetchKnowledgeBases, knowledgeBases, loading, openDetail } =
+  useKnowledgeBase()
 
 const isCreating = ref(false)
 const newName = ref('')
+
+onMounted(fetchKnowledgeBases)
 
 function cancelCreate() {
   newName.value = ''
   isCreating.value = false
 }
 
-function handleCreate() {
+async function handleCreate() {
   const name = newName.value.trim()
   if (!name) return
-  createKnowledgeBase(name)
+  await createKnowledgeBase(name)
   newName.value = ''
   isCreating.value = false
 }
 
 const columns: Array<TableColumn<KnowledgeBase>> = [
-  {
-    accessorKey: 'id',
-    header: 'ID',
-    meta: { class: { td: 'text-muted', th: 'w-20' } }
-  },
   {
     accessorKey: 'name',
     header: '知识库名称'
@@ -44,8 +42,8 @@ const columns: Array<TableColumn<KnowledgeBase>> = [
         h(UButton, {
           color: 'primary',
           icon: 'i-lucide-pencil',
-          onClick: () => {
-            openDetail(row.original)
+          onClick: async () => {
+            await openDetail(row.original)
           },
           size: 'xs',
           variant: 'ghost'
@@ -53,8 +51,8 @@ const columns: Array<TableColumn<KnowledgeBase>> = [
         h(UButton, {
           color: 'error',
           icon: 'i-lucide-trash-2',
-          onClick: () => {
-            deleteKnowledgeBase(row.original.id)
+          onClick: async () => {
+            await deleteKnowledgeBase(row.original.name)
           },
           size: 'xs',
           variant: 'ghost'
@@ -87,7 +85,11 @@ const columns: Array<TableColumn<KnowledgeBase>> = [
       <UButton size="sm" variant="outline" color="neutral" label="取消" @click="cancelCreate" />
     </div>
 
-    <UTable v-if="knowledgeBases.length" :data="knowledgeBases" :columns="columns" />
+    <div v-if="loading" class="flex items-center justify-center py-12">
+      <UIcon name="i-lucide-loader-circle" class="size-6 animate-spin" />
+      <span class="ml-2 text-sm text-neutral-500">加载中...</span>
+    </div>
+    <UTable v-else-if="knowledgeBases.length" :data="knowledgeBases" :columns="columns" />
     <div v-else class="flex flex-col items-center justify-center py-12">
       <UIcon name="i-lucide-database" class="mb-2 size-10" />
       <p>暂无知识库，点击上方按钮新建</p>
