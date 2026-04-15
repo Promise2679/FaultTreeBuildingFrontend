@@ -1,5 +1,11 @@
 import type { CommonResponse } from '~/types/api/common'
-import type { FaultTreeDetailResponse, GenerateFaultTreeRequest } from '~/types/api/faultTree'
+import type {
+  FaultTreeDetailResponse,
+  FaultTreeHistoryListResponse,
+  GenerateFaultTreeRequest,
+  ModifyFaultTreeDetailResponse,
+  ModifyFaultTreeRequest
+} from '~/types/api/faultTree'
 
 import { apiBaseUrl } from './request'
 
@@ -21,6 +27,19 @@ export const faultTreeApi = {
     return useFetch<FaultTreeDetailResponse>(`/fault-trees/${id}`, {
       baseURL: apiBaseUrl,
       method: 'GET'
+    })
+  },
+  getHistory() {
+    return useFetch<FaultTreeHistoryListResponse>('/fault-trees', {
+      baseURL: apiBaseUrl,
+      method: 'GET'
+    })
+  },
+  validate(data: ModifyFaultTreeRequest) {
+    return useFetch<ModifyFaultTreeDetailResponse>('/fault-trees/validate', {
+      baseURL: apiBaseUrl,
+      body: data,
+      method: 'POST'
     })
   }
 }
