@@ -7,10 +7,18 @@ const {
   handleFileSelect,
   handleSend,
   input,
+  isGenerating,
   removeFile,
   triggerFileUpload,
   uploadedFiles
 } = useChat()
+
+const messagesRef = ref<HTMLElement>()
+
+watchDeep(chatMessages, async () => {
+  await nextTick()
+  if (messagesRef.value) messagesRef.value.scrollTop = messagesRef.value.scrollHeight
+})
 </script>
 
 <template>
@@ -18,7 +26,7 @@ const {
     class="fixed top-14 left-0 z-30 flex h-[calc(100vh-3.5rem)] flex-col border-r border-neutral-200 bg-neutral-50 shadow-lg"
     :class="isCollapsed ? 'w-0' : 'w-80'"
   >
-    <div v-show="!isCollapsed" class="flex-1 overflow-auto p-3">
+    <div v-show="!isCollapsed" ref="messagesRef" class="flex-1 overflow-auto p-3">
       <UChatMessages :messages="chatMessages" :user="{ variant: 'solid' }" :assistant="{ variant: 'soft' }" />
     </div>
 
@@ -40,12 +48,19 @@ const {
           </button>
         </div>
       </div>
-      <UChatPrompt v-model="input" placeholder="输入消息..." @submit="handleSend">
+      <UChatPrompt v-model="input" placeholder="输入消息..." :disabled="isGenerating" @submit="handleSend">
         <template #footer>
           <input ref="fileInputRef" type="file" class="hidden" multiple @change="handleFileSelect" />
           <div class="flex items-center gap-1">
-            <UButton icon="i-lucide-paperclip" size="sm" variant="link" color="neutral" @click="triggerFileUpload" />
-            <UChatPromptSubmit />
+            <UButton
+              icon="i-lucide-paperclip"
+              size="sm"
+              variant="link"
+              color="neutral"
+              :disabled="isGenerating"
+              @click="triggerFileUpload"
+            />
+            <UChatPromptSubmit :disabled="isGenerating" />
           </div>
         </template>
       </UChatPrompt>

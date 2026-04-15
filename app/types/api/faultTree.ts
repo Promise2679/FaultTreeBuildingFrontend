@@ -44,7 +44,7 @@ export interface FaultTreeRuleResponse {
 }
 
 export interface GenerateFaultTreeRequest {
-  faultContent: string
+  fault_content: string
 }
 
 export interface ModifyFaultTreeDataResponse {

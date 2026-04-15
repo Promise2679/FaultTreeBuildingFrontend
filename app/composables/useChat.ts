@@ -1,5 +1,7 @@
 import type { ChatMessage, UploadedFile } from '~/types/chat'
 
+import { faultTreeApi } from '~/utils/api/faultTree'
+
 const messages = ref<ChatMessage[]>([
   { content: '你好！我是故障树分析助手，有什么可以帮助你的吗？', id: '1', role: 'assistant' }
 ])
@@ -15,6 +17,9 @@ const chatMessages = computed(() =>
 const input = ref('')
 const uploadedFiles = ref<UploadedFile[]>([])
 const fileInputRef = ref<HTMLInputElement | null>(null)
+const isGenerating = ref(false)
+
+let timerInterval: NodeJS.Timeout | null = null
 
 export function useChat() {
   return {
@@ -23,6 +28,7 @@ export function useChat() {
     handleFileSelect,
     handleSend,
     input,
+    isGenerating: readonly(isGenerating),
     messages,
     removeFile,
     triggerFileUpload,
@@ -47,17 +53,76 @@ function handleFileSelect(event: Event) {
   target.value = ''
 }
 
-function handleSend() {
+async function handleSend() {
+  if (isGenerating.value) return
   if (!input.value.trim() && uploadedFiles.value.length === 0) return
+
+  const userContent = input.value.trim()
   const files = [...uploadedFiles.value].map(f => f.file)
+
+  // Push user message
   messages.value.push({
     attachments: files.length > 0 ? files : undefined,
-    content: input.value,
+    content: userContent,
     id: Date.now().toString(),
     role: 'user'
   })
+
   input.value = ''
   uploadedFiles.value = []
+
+  // Create assistant generating message
+  const assistantMsgId = `gen-${Date.now()}`
+  const assistantMsg: ChatMessage = {
+    content: '正在生成故障树... 已耗时 0s',
+    elapsedTime: 0,
+    id: assistantMsgId,
+    role: 'assistant',
+    status: 'generating'
+  }
+  messages.value.push(assistantMsg)
+
+  isGenerating.value = true
+  const startTime = Date.now()
+
+  // Start timer — update the message content every second
+  timerInterval = setInterval(() => {
+    const msg = messages.value.find(m => m.id === assistantMsgId)
+    if (msg) {
+      const elapsed = Math.floor((Date.now() - startTime) / 1000)
+      msg.elapsedTime = elapsed
+      msg.content = `正在生成故障树... 已耗时 ${elapsed}s`
+    }
+  }, 1000)
+
+  try {
+    const res = await faultTreeApi.generate({ fault_content: userContent })
+    const elapsed = Math.floor((Date.now() - startTime) / 1000)
+    const nodeCount = res.data.nodes.length
+
+    const msg = messages.value.find(m => m.id === assistantMsgId)
+    if (msg) {
+      msg.status = 'success'
+      msg.elapsedTime = elapsed
+      msg.content = `故障树已生成，共 ${nodeCount} 个节点，耗时 ${elapsed}s`
+    }
+
+    const { transformFaultTreeData } = useFaultTree()
+    transformFaultTreeData(res.data)
+  } catch (error) {
+    const elapsed = Math.floor((Date.now() - startTime) / 1000)
+    const msg = messages.value.find(m => m.id === assistantMsgId)
+    if (msg) {
+      msg.status = 'error'
+      msg.elapsedTime = elapsed
+      const errMsg = error instanceof Error ? error.message : '未知错误'
+      msg.content = `生成失败：${errMsg}`
+    }
+  } finally {
+    clearInterval(timerInterval)
+    timerInterval = null
+    isGenerating.value = false
+  }
 }
 
 function removeFile(id: string) {
