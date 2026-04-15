@@ -5,6 +5,7 @@ import dagre from '@dagrejs/dagre'
 import type { GraphEdge, GraphNode, GraphNodeData, GraphNodePosition } from '~/types/faultTree'
 
 import { ADD_BUTTON_MARKUP, registerFaultTreeShapes } from '~/constants/faultTreeGraph'
+import { faultTreeApi } from '~/utils/api/faultTree'
 
 const { setGraph } = useGraphInstance()
 
@@ -14,6 +15,7 @@ const {
   canRedo,
   canUndo,
   clearSelection,
+  currentFaultTreeId,
   deleteNodeWithDescendants,
   graphState,
   isRootNode,
@@ -23,6 +25,13 @@ const {
   transformFaultTreeData,
   undo
 } = useFaultTree()
+
+const loading = ref(false)
+
+watch(currentFaultTreeId, async id => {
+  if (id == null) return
+  await loadFaultTreeById(id)
+})
 
 let graph: Graph | null = null
 const containerRef = ref<HTMLElement>()
@@ -75,7 +84,7 @@ function handleKeyDown(e: KeyboardEvent) {
   }
 }
 
-function initGraph() {
+async function initGraph() {
   if (!containerRef.value) return
 
   graph = new Graph({
@@ -88,9 +97,10 @@ function initGraph() {
   graph.use(new Export())
 
   setGraph(graph)
-
   registerFaultTreeShapes()
-  transformFaultTreeData()
+
+  await nextTick()
+  graph.resize(window.innerWidth, window.innerHeight)
 
   renderGraph()
 
@@ -134,6 +144,30 @@ function initGraph() {
   })
 }
 
+async function loadFaultTreeByGenerate(faultContent: string) {
+  loading.value = true
+  try {
+    const res = await faultTreeApi.generate({ faultContent })
+    transformFaultTreeData(res.data)
+    renderGraph()
+  } finally {
+    loading.value = false
+  }
+}
+
+async function loadFaultTreeById(id: number) {
+  loading.value = true
+  try {
+    const res = await faultTreeApi.getById(id)
+    transformFaultTreeData(res.data)
+    renderGraph()
+  } finally {
+    loading.value = false
+  }
+}
+
+defineExpose({ loadFaultTreeByGenerate, loadFaultTreeById })
+
 function renderGraph() {
   if (!graph) return
 
@@ -146,5 +180,17 @@ function renderGraph() {
 </script>
 
 <template>
-  <div ref="containerRef" class="size-full bg-neutral-50" />
+  <div class="relative size-full">
+    <div ref="containerRef" class="size-full bg-neutral-50" />
+    <div v-if="loading" class="absolute inset-0 z-10 flex items-center justify-center bg-white/60">
+      <UIcon name="i-lucide-loader-circle" class="size-8 animate-spin text-neutral-400" />
+    </div>
+    <div
+      v-else-if="!graphState.nodes.length"
+      class="absolute inset-0 z-10 flex flex-col items-center justify-center text-neutral-400"
+    >
+      <UIcon name="i-lucide-git-fork" class="mb-3 size-12" />
+      <p class="text-sm">通过左侧聊天生成故障树，或从历史记录中选择</p>
+    </div>
+  </div>
 </template>

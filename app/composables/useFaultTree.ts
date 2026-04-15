@@ -1,6 +1,5 @@
+import type { FaultTreeResponse } from '~/types/api/faultTree'
 import type { GraphEdge, GraphNode, GraphNodeData } from '~/types/faultTree'
-
-import { mockFaultTreeData } from '~/constants/faultTreeMock'
 
 export interface SelectedNodeData {
   description?: string
@@ -10,8 +9,9 @@ export interface SelectedNodeData {
   probability?: number
 }
 
-const selectedNode = ref<null | SelectedNodeData>(null)
+const selectedNode = ref<SelectedNodeData>()
 const isSidebarOpen = ref(false)
+const currentFaultTreeId = ref<number>()
 
 const graphState = ref<{ edges: GraphEdge[]; nodes: GraphNode[] }>({ edges: [], nodes: [] })
 const { canRedo, canUndo, clear, commit, redo, undo } = useManualRefHistory(graphState, { capacity: 50, clone: true })
@@ -23,6 +23,7 @@ export function useFaultTree() {
     canRedo,
     canUndo,
     clearSelection,
+    currentFaultTreeId,
     deleteNodeWithDescendants,
     graphState: readonly(graphState),
     isRootNode,
@@ -75,7 +76,7 @@ function canAddChild(nodeType: string, nodeData: GraphNodeData) {
 }
 
 function clearSelection() {
-  selectedNode.value = null
+  selectedNode.value = undefined
   isSidebarOpen.value = false
 }
 
@@ -115,7 +116,7 @@ function deleteNodeWithDescendants(nodeId: string) {
 }
 
 function getGateShape(gateName: string) {
-  return gateName === 'OR' ? 'or-gate-node' : 'and-gate-node'
+  return gateName === 'or' ? 'or-gate-node' : 'and-gate-node'
 }
 
 function isRootNode(nodeId: string) {
@@ -127,11 +128,13 @@ function selectNode(node: SelectedNodeData) {
   isSidebarOpen.value = true
 }
 
-function transformFaultTreeData() {
-  const { nodes } = mockFaultTreeData
+function transformFaultTreeData(data: FaultTreeResponse) {
+  graphState.value.nodes = []
+  graphState.value.edges = []
+  const { nodes } = data
 
   for (const node of nodes) {
-    const isGate = node.nodeType === 'GATE'
+    const isGate = node.nodeType === 'gate'
     const nodeType = isGate ? 'gate' : 'event'
     const graphNode: GraphNode = {
       data: {
