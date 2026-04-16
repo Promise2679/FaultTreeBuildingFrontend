@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { clearSelection, selectedNode, updateSelectedNode } = useFaultTree()
+const { clearSelection, saveNodeEdit, selectedNode } = useFaultTree()
 
 const formData = reactive({ description: '', label: '', probability: 0 })
 
@@ -13,7 +13,7 @@ watchImmediate(selectedNode, node => {
 
 function handleSave() {
   if (!selectedNode.value) return
-  updateSelectedNode({ description: formData.description, label: formData.label, probability: formData.probability })
+  saveNodeEdit({ description: formData.description, label: formData.label, probability: formData.probability })
   clearSelection()
 }
 </script>

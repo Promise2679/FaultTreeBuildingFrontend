@@ -8,11 +8,10 @@ export interface CreateNodeRequest {
   description?: string
   gate?: string
   level?: number
-  nodeName: string
-  nodeType: string
-  parentId?: string
+  node_name: string
+  node_type: string
+  parent_id?: string
   rules?: NodeRuleRequest[]
-  sort?: number
   source?: string
 }
 

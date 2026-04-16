@@ -1,5 +1,8 @@
 import type { FaultTreeResponse } from '~/types/api/faultTree'
+import type { CreateNodeRequest, UpdateNodeRequest } from '~/types/api/faultTreeNode'
 import type { GraphEdge, GraphNode, GraphNodeData } from '~/types/faultTree'
+
+import { faultTreeNodeApi } from '~/utils/api/faultTreeNode'
 
 export interface SelectedNodeData {
   description?: string
@@ -29,11 +32,11 @@ export function useFaultTree() {
     isRootNode,
     isSidebarOpen: readonly(isSidebarOpen),
     redo,
+    saveNodeEdit,
     selectedNode: readonly(selectedNode),
     selectNode,
     transformFaultTreeData,
-    undo,
-    updateSelectedNode
+    undo
   }
 }
 
@@ -44,7 +47,7 @@ function addChildNode(parentId: string) {
   const isParentGate = parentNode.data.nodeType === 'gate'
   const newNodeType = isParentGate ? 'event' : 'gate'
   const newLabel = isParentGate ? '新事件' : 'AND'
-  const newNodeId = crypto.randomUUID()
+  const tempNodeId = crypto.randomUUID()
 
   const newNode: GraphNode = {
     data: {
@@ -54,19 +57,56 @@ function addChildNode(parentId: string) {
       nodeType: newNodeType,
       probability: undefined
     },
-    id: newNodeId,
+    id: tempNodeId,
     label: isParentGate ? newLabel : undefined,
     shape: isParentGate ? undefined : 'and-gate-node',
     size: newNodeType === 'gate' ? { height: 50, width: 40 } : { height: 50, width: 140 }
   }
 
-  const newEdge: GraphEdge = { shape: 'fault-tree-edge', source: parentId, target: newNodeId }
+  const newEdge: GraphEdge = { shape: 'fault-tree-edge', source: parentId, target: tempNodeId }
 
   graphState.value.nodes.push(newNode)
   graphState.value.edges.push(newEdge)
+  if (typeof parentNode.data.hasChildren === 'number') parentNode.data.hasChildren++
   commit()
 
-  if (typeof parentNode.data.hasChildren === 'number') parentNode.data.hasChildren++
+  if (currentFaultTreeId.value == null) return
+
+  const faultTreeId = currentFaultTreeId.value
+  const request = buildCreateNodeRequest(newNode, parentId)
+
+  faultTreeNodeApi
+    .create(faultTreeId, request)
+    .then(res => {
+      const backendNodeId = res.data.nodeId
+      if (backendNodeId && backendNodeId !== tempNodeId) {
+        replaceNodeId(tempNodeId, backendNodeId)
+        commit()
+      }
+    })
+    .catch(() => {
+      undo()
+    })
+}
+
+function buildCreateNodeRequest(node: GraphNode, parentId?: string): CreateNodeRequest {
+  return {
+    description: node.data?.description,
+    gate: node.data?.gate,
+    node_name: node.label ?? node.data?.gate ?? '',
+    node_type: node.data?.nodeType ?? 'event',
+    parent_id: parentId
+  }
+}
+
+function buildUpdateNodeRequest(node: GraphNode): UpdateNodeRequest {
+  return {
+    description: node.data?.description,
+    gate: node.data?.gate,
+    node_name: node.label ?? node.data?.gate ?? '',
+    node_type: node.data?.nodeType ?? 'event',
+    parent_id: findParentId(node.id)
+  }
 }
 
 function canAddChild(nodeType: string, nodeData: GraphNodeData) {
@@ -113,6 +153,17 @@ function deleteNodeWithDescendants(nodeId: string) {
   commit()
 
   if (selectedNode.value && idsToDelete.has(selectedNode.value.id)) clearSelection()
+
+  if (currentFaultTreeId.value == null) return
+
+  faultTreeNodeApi.delete(currentFaultTreeId.value, nodeId).catch(() => {
+    undo()
+  })
+}
+
+function findParentId(nodeId: string): string | undefined {
+  const edge = graphState.value.edges.find(e => e.target === nodeId)
+  return edge?.source
 }
 
 function getGateShape(gateName: string) {
@@ -121,6 +172,56 @@ function getGateShape(gateName: string) {
 
 function isRootNode(nodeId: string) {
   return !graphState.value.edges.some(e => e.target === nodeId)
+}
+
+function replaceNodeId(oldId: string, newId: string) {
+  const node = graphState.value.nodes.find(n => n.id === oldId)
+  if (node) node.id = newId
+
+  for (const edge of graphState.value.edges) {
+    if (edge.source === oldId) edge.source = newId
+    if (edge.target === oldId) edge.target = newId
+  }
+
+  if (selectedNode.value?.id === oldId) selectedNode.value = { ...selectedNode.value, id: newId }
+}
+
+function saveNodeEdit(updates: { description?: string; label: string; probability?: number }) {
+  if (!selectedNode.value) return
+
+  const nodeId = selectedNode.value.id
+  const node = graphState.value.nodes.find(n => n.id === nodeId)
+  if (!node) return
+
+  const oldNodeType = selectedNode.value.nodeType
+  const isGate = oldNodeType === 'gate'
+
+  if (node.data) {
+    node.data.description = updates.description
+    node.data.probability = updates.probability
+    if (isGate) {
+      node.data.gate = updates.label
+      node.shape = getGateShape(updates.label.toLowerCase())
+    }
+  }
+  if (!isGate) node.label = updates.label
+
+  commit()
+
+  selectedNode.value = {
+    ...selectedNode.value,
+    description: updates.description,
+    label: updates.label,
+    probability: updates.probability
+  }
+
+  if (currentFaultTreeId.value == null) return
+
+  const request = buildUpdateNodeRequest(node)
+
+  faultTreeNodeApi.update(currentFaultTreeId.value, nodeId, request).catch(() => {
+    undo()
+  })
 }
 
 function selectNode(node: SelectedNodeData) {
@@ -156,8 +257,4 @@ function transformFaultTreeData(data: FaultTreeResponse) {
   }
   commit()
   clear()
-}
-
-function updateSelectedNode(updates: Partial<SelectedNodeData>) {
-  if (selectedNode.value) selectedNode.value = { ...selectedNode.value, ...updates }
 }
