@@ -60,7 +60,6 @@ async function handleSend() {
   const userContent = input.value.trim()
   const files = [...uploadedFiles.value].map(f => f.file)
 
-  // Push user message
   messages.value.push({
     attachments: files.length > 0 ? files : undefined,
     content: userContent,
@@ -71,7 +70,6 @@ async function handleSend() {
   input.value = ''
   uploadedFiles.value = []
 
-  // Create assistant generating message
   const assistantMsgId = `gen-${Date.now()}`
   const assistantMsg: ChatMessage = {
     content: '正在生成故障树... 已耗时 0s',
@@ -85,7 +83,6 @@ async function handleSend() {
   isGenerating.value = true
   const startTime = Date.now()
 
-  // Start timer — update the message content every second
   timerInterval = setInterval(() => {
     const msg = messages.value.find(m => m.id === assistantMsgId)
     if (msg) {

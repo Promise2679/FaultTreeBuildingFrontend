@@ -45,7 +45,7 @@ async function deleteFile(fileName: string) {
   const kbName = currentKnowledgeBase.value.name
   await knowledgeBaseApi.deleteFile(kbName, fileName)
   await fetchFiles(kbName)
-  // 同步更新列表中的文件计数
+
   const kb = knowledgeBases.value.find(k => k.name === kbName)
   if (kb) kb.documentCount = currentFiles.value.length
 }
