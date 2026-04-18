@@ -5,6 +5,7 @@ import { faultTreeNodeApi } from '~/utils/api/faultTreeNode'
 
 const selectedNode = ref<SelectedNodeData>()
 const isSidebarOpen = ref(false)
+const isLoadingNodeDetail = ref(false)
 const currentFaultTreeId = ref<number>()
 
 const graphState = ref<{ edges: GraphEdge[]; nodes: GraphNode[] }>({ edges: [], nodes: [] })
@@ -20,6 +21,7 @@ export function useFaultTree() {
     currentFaultTreeId,
     deleteNodeWithDescendants,
     graphState: readonly(graphState),
+    isLoadingNodeDetail: readonly(isLoadingNodeDetail),
     isRootNode,
     isSidebarOpen: readonly(isSidebarOpen),
     redo,
@@ -136,6 +138,31 @@ function deleteNodeWithDescendants(nodeId: string) {
   })
 }
 
+async function fetchNodeDetail(nodeId: string) {
+  if (currentFaultTreeId.value == null) return
+
+  isLoadingNodeDetail.value = true
+  try {
+    const res = await faultTreeNodeApi.getById(currentFaultTreeId.value, nodeId)
+    const detail = res.data
+    if (selectedNode.value?.id !== nodeId) return
+
+    selectedNode.value = {
+      ...selectedNode.value,
+      description: detail.description,
+      rules: detail.rules.map(r => ({
+        condition: r.condition,
+        deviceType: r.deviceType,
+        duration: r.duration,
+        measurePoint: r.measurePoint
+      })),
+      source: detail.source
+    }
+  } finally {
+    isLoadingNodeDetail.value = false
+  }
+}
+
 function getGateShape(gateName: string) {
   return gateName === 'or' ? 'or-gate-node' : 'and-gate-node'
 }
@@ -156,7 +183,7 @@ function replaceNodeId(oldId: string, newId: string) {
   if (selectedNode.value?.id === oldId) selectedNode.value = { ...selectedNode.value, id: newId }
 }
 
-function saveNodeEdit(updates: { description?: string; label: string; probability?: number }) {
+function saveNodeEdit(updates: SelectedNodeData) {
   if (!selectedNode.value) return
 
   const nodeId = selectedNode.value.id
@@ -180,7 +207,9 @@ function saveNodeEdit(updates: { description?: string; label: string; probabilit
   selectedNode.value = {
     ...selectedNode.value,
     description: updates.description,
-    label: updates.label
+    label: updates.label,
+    rules: updates.rules,
+    source: updates.source
   }
 
   if (currentFaultTreeId.value == null) return
@@ -191,16 +220,24 @@ function saveNodeEdit(updates: { description?: string; label: string; probabilit
       gate: node.data?.gate,
       node_name: node.label ?? node.data?.gate ?? '',
       node_type: node.data?.nodeType ?? 'event',
-      parent_id: graphState.value.edges.find(e => e.target === node.id)?.source
+      parent_id: graphState.value.edges.find(e => e.target === node.id)?.source,
+      rules: updates.rules?.map(r => ({
+        condition: r.condition,
+        deviceType: r.deviceType,
+        duration: r.duration,
+        measurePoint: r.measurePoint
+      })),
+      source: updates.source
     })
     .catch(() => {
       undo()
     })
 }
 
-function selectNode(node: SelectedNodeData) {
+async function selectNode(node: SelectedNodeData) {
   selectedNode.value = node
   isSidebarOpen.value = true
+  await fetchNodeDetail(node.id)
 }
 
 function transformFaultTreeData(data: FaultTreeResponse) {

@@ -104,11 +104,11 @@ async function initGraph() {
 
   renderGraph()
 
-  graph.on('node:click', ({ node }) => {
+  graph.on('node:click', async ({ node }) => {
     const nodeData = node.getData<GraphNodeData>()
     const isGate = nodeData.nodeType === 'gate'
     const label = isGate ? (nodeData.gate ?? 'AND') : node.attr<string>('text/text') || ''
-    selectNode({
+    await selectNode({
       description: nodeData.description,
       id: node.id,
       label,
@@ -143,17 +143,6 @@ async function initGraph() {
   })
 }
 
-async function loadFaultTreeByGenerate(faultContent: string) {
-  loading.value = true
-  try {
-    const res = await faultTreeApi.generate({ fault_content: faultContent })
-    transformFaultTreeData(res.data)
-    renderGraph()
-  } finally {
-    loading.value = false
-  }
-}
-
 async function loadFaultTreeById(id: number) {
   loading.value = true
   try {
@@ -164,8 +153,6 @@ async function loadFaultTreeById(id: number) {
     loading.value = false
   }
 }
-
-defineExpose({ loadFaultTreeByGenerate, loadFaultTreeById })
 
 function renderGraph() {
   if (!graph) return

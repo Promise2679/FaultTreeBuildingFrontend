@@ -30,4 +30,13 @@ export interface SelectedNodeData {
   id: string
   label: string
   nodeType: 'event' | 'gate'
+  rules?: SelectedNodeRule[]
+  source?: string
+}
+
+export interface SelectedNodeRule {
+  condition: string
+  deviceType: string
+  duration: string
+  measurePoint: string
 }
