@@ -21,6 +21,8 @@ const isGenerating = ref(false)
 
 let timerInterval: NodeJS.Timeout | null = null
 
+const [isCollapsed, toggle] = useToggle()
+
 export function useChat() {
   return {
     chatMessages,
@@ -28,9 +30,11 @@ export function useChat() {
     handleFileSelect,
     handleSend,
     input,
+    isCollapsed,
     isGenerating: readonly(isGenerating),
     messages,
     removeFile,
+    toggle,
     triggerFileUpload,
     uploadedFiles
   }

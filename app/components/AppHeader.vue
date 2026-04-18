@@ -2,7 +2,7 @@
 import type { FaultTreeHistoryItemResponse } from '~/types/api/faultTree'
 
 const { exportAsImage } = useGraphInstance()
-const { isCollapsed, toggle } = useChatSidebar()
+const { isCollapsed, toggle } = useChat()
 const { currentFaultTreeId } = useFaultTree()
 const isHistoryOpen = ref(false)
 const isKnowledgeBaseOpen = ref(false)

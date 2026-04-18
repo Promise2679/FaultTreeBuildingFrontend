@@ -1,12 +1,11 @@
 <script setup lang="ts">
-const { isCollapsed } = useChatSidebar()
-
 const {
   chatMessages,
   fileInputRef,
   handleFileSelect,
   handleSend,
   input,
+  isCollapsed,
   isGenerating,
   removeFile,
   triggerFileUpload,

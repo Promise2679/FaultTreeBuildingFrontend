@@ -18,10 +18,16 @@ export interface GraphNodeData {
   gate?: string
   hasChildren?: number
   nodeType?: string
-  probability?: number
 }
 
 export interface GraphNodePosition {
   x: number
   y: number
+}
+
+export interface SelectedNodeData {
+  description?: string
+  id: string
+  label: string
+  nodeType: 'event' | 'gate'
 }

@@ -19,18 +19,6 @@ whenever(isOpen, async () => {
   }
 })
 
-function formatTime(dateStr: string) {
-  if (!dateStr) return ''
-  const date = new Date(dateStr)
-  return date.toLocaleString('zh-CN', {
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    month: '2-digit',
-    year: 'numeric'
-  })
-}
-
 function handleSelect(item: FaultTreeHistoryItemResponse) {
   emit('select', item)
   isOpen.value = false
@@ -53,7 +41,7 @@ function handleSelect(item: FaultTreeHistoryItemResponse) {
         >
           <div class="flex items-center justify-between">
             <span class="font-medium text-neutral-900">{{ item.treeName }}</span>
-            <span class="text-xs text-neutral-500">{{ formatTime(item.createdAt) }}</span>
+            <span class="text-xs text-neutral-500">{{ new Date(item.createdAt).toLocaleString() }}</span>
           </div>
           <p class="mt-1 text-sm text-neutral-600">{{ item.deviceType }}</p>
         </div>

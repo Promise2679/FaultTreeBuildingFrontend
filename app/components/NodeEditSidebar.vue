@@ -1,19 +1,22 @@
 <script setup lang="ts">
+import type { SelectedNodeData } from '~/types/faultTree'
+
 const { clearSelection, saveNodeEdit, selectedNode } = useFaultTree()
 
-const formData = reactive({ description: '', label: '', probability: 0 })
+const formData = reactive<SelectedNodeData>({ description: '', id: '', label: '', nodeType: 'event' })
 
 watchImmediate(selectedNode, node => {
   if (node) {
     formData.label = node.label
     formData.description = node.description ?? ''
-    formData.probability = node.probability ?? 0
+    formData.id = node.id
+    formData.nodeType = node.nodeType
   }
 })
 
 function handleSave() {
   if (!selectedNode.value) return
-  saveNodeEdit({ description: formData.description, label: formData.label, probability: formData.probability })
+  saveNodeEdit(formData)
   clearSelection()
 }
 </script>
@@ -34,24 +37,12 @@ function handleSave() {
 
         <div>
           <label class="mb-1 block text-sm font-medium text-neutral-700">节点类型</label>
-          <UInput :model-value="selectedNode?.nodeType === 'gate' ? '门节点 (Gate)' : '事件节点 (Event)'" readonly />
+          <UInput :model-value="formData.nodeType === 'gate' ? '门节点 (Gate)' : '事件节点 (Event)'" readonly />
         </div>
 
         <div>
           <label class="mb-1 block text-sm font-medium text-neutral-700">描述</label>
           <UTextarea v-model="formData.description" placeholder="请输入描述" :rows="4" />
-        </div>
-
-        <div>
-          <label class="mb-1 block text-sm font-medium text-neutral-700">失效概率</label>
-          <UInput
-            v-model="formData.probability"
-            type="number"
-            min="0"
-            max="1"
-            step="0.01"
-            placeholder="0-1 之间的小数"
-          />
         </div>
       </div>
     </div>

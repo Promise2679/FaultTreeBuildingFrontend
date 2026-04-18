@@ -112,8 +112,7 @@ async function initGraph() {
       description: nodeData.description,
       id: node.id,
       label,
-      nodeType: isGate ? 'gate' : 'event',
-      probability: nodeData.probability
+      nodeType: isGate ? 'gate' : 'event'
     })
   })
 
