@@ -9,5 +9,8 @@ export default defineNuxtConfig({
   routeRules: { '/': { prerender: true } },
   ssr: false,
   ui: { colorMode: false },
-  vite: { optimizeDeps: { include: ['@antv/x6', 'es-toolkit'] } }
+  vite: {
+    optimizeDeps: { include: ['@antv/x6', 'es-toolkit'] },
+    server: { proxy: { '/api': { changeOrigin: true, target: process.env.PROXY_TARGET } } }
+  }
 })
