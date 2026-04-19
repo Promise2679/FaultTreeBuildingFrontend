@@ -1,6 +1,6 @@
 import type { KnowledgeBase, KnowledgeBaseFile, KnowledgeBaseFileStatus } from '~/types/knowledgeBase'
 
-import { knowledgeBaseApi } from '~/utils/api/knowledgeBase'
+import { knowledgeBaseApi } from '~/api/knowledgeBase'
 
 type KnowledgeBaseView = 'detail' | 'list'
 

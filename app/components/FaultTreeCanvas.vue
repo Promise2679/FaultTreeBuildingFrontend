@@ -4,8 +4,8 @@ import dagre from '@dagrejs/dagre'
 
 import type { GraphEdge, GraphNode, GraphNodeData, GraphNodePosition } from '~/types/faultTree'
 
+import { faultTreeApi } from '~/api/faultTree'
 import { ADD_BUTTON_MARKUP, registerFaultTreeShapes } from '~/constants/faultTreeGraph'
-import { faultTreeApi } from '~/utils/api/faultTree'
 
 const { setGraph } = useGraph()
 

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { FaultTreeHistoryItemResponse } from '~/types/api/faultTree'
 
-import { faultTreeApi } from '~/utils/api/faultTree'
+import { faultTreeApi } from '~/api/faultTree'
 
 const isOpen = defineModel<boolean>('open', { default: false })
 const emit = defineEmits<{ select: [item: FaultTreeHistoryItemResponse] }>()

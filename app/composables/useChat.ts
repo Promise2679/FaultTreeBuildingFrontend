@@ -1,6 +1,6 @@
 import type { ChatMessage, UploadedFile } from '~/types/chat'
 
-import { faultTreeApi } from '~/utils/api/faultTree'
+import { faultTreeApi } from '~/api/faultTree'
 
 const messages = ref<ChatMessage[]>([
   { content: '你好！我是故障树分析助手，有什么可以帮助你的吗？', id: '1', role: 'assistant' }

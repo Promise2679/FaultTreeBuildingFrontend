@@ -1,7 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: '2025-01-15',
-  css: ['~/assets/css/main.css'],
+  css: ['~/assets/main.css'],
   devtools: { enabled: true },
   eslint: { config: { standalone: false } },
   fonts: { provider: 'bunny' },

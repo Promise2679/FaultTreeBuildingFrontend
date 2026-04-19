@@ -1,7 +1,7 @@
 import type { FaultTreeResponse } from '~/types/api/faultTree'
 import type { GraphEdge, GraphNode, GraphNodeData, SelectedNodeData } from '~/types/faultTree'
 
-import { faultTreeNodeApi } from '~/utils/api/faultTreeNode'
+import { faultTreeNodeApi } from '~/api/faultTreeNode'
 
 const selectedNode = ref<SelectedNodeData>()
 const isSidebarOpen = ref(false)
@@ -35,8 +35,7 @@ export function useFaultTree() {
 
 async function addChildNode(parentId: string) {
   const parentNode = graphState.value.nodes.find(n => n.id === parentId)
-  if (!parentNode?.data?.nodeType) return
-  if (currentFaultTreeId.value == null) return
+  if (!parentNode?.data?.nodeType || currentFaultTreeId.value == null) return
 
   const isParentGate = parentNode.data.nodeType === 'gate'
   const newNodeType = isParentGate ? 'event' : 'gate'
@@ -113,8 +112,7 @@ function collectDescendantIds(nodeId: string, edges: GraphEdge[]) {
 }
 
 async function deleteNodeWithDescendants(nodeId: string) {
-  if (isRootNode(nodeId)) return
-  if (currentFaultTreeId.value == null) return
+  if (isRootNode(nodeId) || currentFaultTreeId.value == null) return
 
   await faultTreeNodeApi.delete(currentFaultTreeId.value, nodeId)
 
@@ -143,8 +141,7 @@ function isRootNode(nodeId: string) {
 }
 
 async function saveNodeEdit(updates: SelectedNodeData) {
-  if (!selectedNode.value) return
-  if (currentFaultTreeId.value == null) return
+  if (!selectedNode.value || currentFaultTreeId.value == null) return
 
   const nodeId = selectedNode.value.id
   const node = graphState.value.nodes.find(n => n.id === nodeId)
