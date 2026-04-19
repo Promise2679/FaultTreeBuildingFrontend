@@ -107,7 +107,8 @@ async function initGraph() {
   graph.on('node:click', async ({ node }) => {
     const nodeData = node.getData<GraphNodeData>()
     const isGate = nodeData.nodeType === 'gate'
-    const label = isGate ? (nodeData.gate ?? 'AND') : node.attr<string>('text/text') || ''
+    const textWrap = node.attr<{ text?: string }>('label/textWrap')
+    const label = isGate ? (nodeData.gate ?? 'AND') : (textWrap.text ?? '')
     await selectNode({
       description: nodeData.description,
       id: node.id,

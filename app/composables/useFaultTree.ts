@@ -39,20 +39,21 @@ function addChildNode(parentId: string) {
 
   const isParentGate = parentNode.data.nodeType === 'gate'
   const newNodeType = isParentGate ? 'event' : 'gate'
-  const newLabel = isParentGate ? '新事件' : 'AND'
+  const newLabel = isParentGate ? '新事件' : 'and'
   const tempNodeId = crypto.randomUUID()
 
+  const isEvent = newNodeType === 'event'
   const newNode: GraphNode = {
+    attrs: isEvent ? { label: { textWrap: { text: newLabel } } } : undefined,
     data: {
       description: newLabel,
-      gate: isParentGate ? undefined : 'AND',
+      gate: isParentGate ? undefined : 'and',
       hasChildren: 0,
       nodeType: newNodeType
     },
     id: tempNodeId,
-    label: isParentGate ? newLabel : undefined,
-    shape: isParentGate ? undefined : 'and-gate-node',
-    size: newNodeType === 'gate' ? { height: 50, width: 40 } : { height: 50, width: 140 }
+    shape: isEvent ? 'event-node' : 'and-gate-node',
+    size: isEvent ? { height: calculateEventNodeHeight(newLabel), width: 140 } : { height: 50, width: 40 }
   }
 
   const newEdge: GraphEdge = { shape: 'fault-tree-edge', source: parentId, target: tempNodeId }
@@ -70,7 +71,7 @@ function addChildNode(parentId: string) {
     .create(faultTreeId, {
       description: newNode.data?.description,
       gate: newNode.data?.gate,
-      node_name: newNode.label ?? newNode.data?.gate ?? '',
+      node_name: getNodeLabel(newNode),
       node_type: newNode.data?.nodeType ?? 'event',
       parent_id: parentId
     })
@@ -84,6 +85,18 @@ function addChildNode(parentId: string) {
     .catch(() => {
       undo()
     })
+}
+
+function calculateEventNodeHeight(label: string) {
+  let textWidth = 0
+  for (const ch of label) {
+    const code = ch.codePointAt(0)
+    if (code == null) continue
+    textWidth += code > 127 ? 14 : 7
+  }
+
+  const lines = Math.max(1, Math.ceil(textWidth / 120))
+  return Math.max(40, 20 * lines + 16)
 }
 
 function canAddChild(nodeType: string, nodeData: GraphNodeData) {
@@ -142,6 +155,11 @@ function getGateShape(gateName: string) {
   return gateName === 'or' ? 'or-gate-node' : 'and-gate-node'
 }
 
+function getNodeLabel(node: GraphNode): string {
+  const textWrap = node.attrs?.label?.textWrap as { text?: string } | undefined
+  return textWrap?.text ?? node.label ?? node.data?.gate ?? ''
+}
+
 function isRootNode(nodeId: string) {
   return !graphState.value.edges.some(e => e.target === nodeId)
 }
@@ -175,7 +193,11 @@ function saveNodeEdit(updates: SelectedNodeData) {
       node.shape = getGateShape(updates.label)
     }
   }
-  if (!isGate) node.label = updates.label
+  if (!isGate) {
+    node.attrs ??= {}
+    node.attrs.label = { ...node.attrs.label, textWrap: { text: updates.label } }
+    node.size = { height: calculateEventNodeHeight(updates.label), width: 140 }
+  }
 
   commit()
 
@@ -193,7 +215,7 @@ function saveNodeEdit(updates: SelectedNodeData) {
     .update(currentFaultTreeId.value, nodeId, {
       description: node.data?.description,
       gate: node.data?.gate,
-      node_name: node.label ?? node.data?.gate ?? '',
+      node_name: getNodeLabel(node),
       node_type: node.data?.nodeType ?? 'event',
       parent_id: graphState.value.edges.find(e => e.target === node.id)?.source,
       rules: updates.rules?.map(r => ({
@@ -245,6 +267,7 @@ function transformFaultTreeData(data: FaultTreeResponse) {
     const isGate = node.nodeType === 'gate'
     const nodeType = isGate ? 'gate' : 'event'
     const graphNode: GraphNode = {
+      attrs: isGate ? undefined : { label: { textWrap: { text: node.nodeName } } },
       data: {
         description: node.nodeName,
         gate: isGate ? node.nodeName : undefined,
@@ -252,9 +275,8 @@ function transformFaultTreeData(data: FaultTreeResponse) {
         nodeType
       },
       id: node.nodeId,
-      label: isGate ? undefined : node.nodeName,
-      shape: isGate ? getGateShape(node.nodeName) : undefined,
-      size: isGate ? { height: 50, width: 40 } : { height: 50, width: 140 }
+      shape: isGate ? getGateShape(node.nodeName) : 'event-node',
+      size: isGate ? { height: 50, width: 40 } : { height: calculateEventNodeHeight(node.nodeName), width: 140 }
     }
     graphState.value.nodes.push(graphNode)
 

@@ -5,6 +5,7 @@ export interface GraphEdge {
 }
 
 export interface GraphNode {
+  attrs?: Record<string, Record<string, any>>
   data?: GraphNodeData
   id: string
   label?: string

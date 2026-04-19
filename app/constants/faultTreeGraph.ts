@@ -37,6 +37,33 @@ export function registerFaultTreeShapes() {
     width: 40
   })
 
+  Graph.registerNode('event-node', {
+    attrs: {
+      body: {
+        fill: '#ffffff',
+        rx: 4,
+        ry: 4,
+        stroke: '#d1d5db',
+        strokeWidth: 1
+      },
+      label: {
+        fontSize: 14,
+        refX: '50%',
+        refY: '50%',
+        textAnchor: 'middle',
+        textVerticalAnchor: 'middle',
+        textWrap: {
+          ellipsis: false,
+          text: '',
+          width: -20
+        }
+      }
+    },
+    height: 50,
+    inherit: 'rect',
+    width: 140
+  })
+
   Graph.registerEdge('fault-tree-edge', FAULT_TREE_EDGE_CONFIG)
 }
 
