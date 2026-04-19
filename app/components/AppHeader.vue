@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { FaultTreeHistoryItemResponse } from '~/types/api/faultTree'
 
-const { exportAsImage } = useGraphInstance()
+const { exportAsImage } = useGraph()
 const { isCollapsed, toggle } = useChat()
 const { currentFaultTreeId } = useFaultTree()
 const isHistoryOpen = ref(false)
@@ -30,6 +30,6 @@ function handleHistorySelect(item: FaultTreeHistoryItemResponse) {
     </div>
   </header>
 
-  <ChatHistoryDrawer v-model:open="isHistoryOpen" @select="handleHistorySelect" />
-  <KnowledgeBaseModal v-model:open="isKnowledgeBaseOpen" />
+  <HistoryDrawer v-model:open="isHistoryOpen" @select="handleHistorySelect" />
+  <KnowledgeBase v-model:open="isKnowledgeBaseOpen" />
 </template>

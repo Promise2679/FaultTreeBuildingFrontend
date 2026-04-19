@@ -26,9 +26,9 @@ function addRule() {
   formData.rules.push({ condition: '', deviceType: '', duration: '', measurePoint: '' })
 }
 
-function handleSave() {
+async function handleSave() {
   if (!selectedNode.value) return
-  saveNodeEdit(formData)
+  await saveNodeEdit(formData)
   clearSelection()
 }
 </script>

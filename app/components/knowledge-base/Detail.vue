@@ -8,7 +8,7 @@ const UButton = resolveComponent('UButton')
 
 const { backToList, currentFiles, currentKnowledgeBase, deleteFile, loading, uploadFile } = useKnowledgeBase()
 
-const fileInputRef = ref<HTMLInputElement | null>(null)
+const fileInputRef = ref<HTMLInputElement>()
 
 async function handleFileChange(event: Event) {
   const input = event.target as HTMLInputElement

@@ -33,15 +33,24 @@ export function useFaultTree() {
   }
 }
 
-function addChildNode(parentId: string) {
+async function addChildNode(parentId: string) {
   const parentNode = graphState.value.nodes.find(n => n.id === parentId)
   if (!parentNode?.data?.nodeType) return
+  if (currentFaultTreeId.value == null) return
 
   const isParentGate = parentNode.data.nodeType === 'gate'
   const newNodeType = isParentGate ? 'event' : 'gate'
   const newLabel = isParentGate ? '新事件' : 'and'
-  const tempNodeId = crypto.randomUUID()
 
+  const res = await faultTreeNodeApi.create(currentFaultTreeId.value, {
+    description: newLabel,
+    gate: isParentGate ? undefined : 'and',
+    node_name: newLabel,
+    node_type: newNodeType,
+    parent_id: parentId
+  })
+
+  const backendNodeId = res.data.nodeId
   const isEvent = newNodeType === 'event'
   const newNode: GraphNode = {
     attrs: isEvent ? { label: { textWrap: { text: newLabel } } } : undefined,
@@ -51,40 +60,17 @@ function addChildNode(parentId: string) {
       hasChildren: 0,
       nodeType: newNodeType
     },
-    id: tempNodeId,
+    id: backendNodeId,
     shape: isEvent ? 'event-node' : 'and-gate-node',
     size: isEvent ? { height: calculateEventNodeHeight(newLabel), width: 140 } : { height: 50, width: 40 }
   }
 
-  const newEdge: GraphEdge = { shape: 'fault-tree-edge', source: parentId, target: tempNodeId }
+  const newEdge: GraphEdge = { shape: 'fault-tree-edge', source: parentId, target: backendNodeId }
 
   graphState.value.nodes.push(newNode)
   graphState.value.edges.push(newEdge)
   if (typeof parentNode.data.hasChildren === 'number') parentNode.data.hasChildren++
   commit()
-
-  if (currentFaultTreeId.value == null) return
-
-  const faultTreeId = currentFaultTreeId.value
-
-  faultTreeNodeApi
-    .create(faultTreeId, {
-      description: newNode.data?.description,
-      gate: newNode.data?.gate,
-      node_name: getNodeLabel(newNode),
-      node_type: newNode.data?.nodeType ?? 'event',
-      parent_id: parentId
-    })
-    .then(res => {
-      const backendNodeId = res.data.nodeId
-      if (backendNodeId && backendNodeId !== tempNodeId) {
-        replaceNodeId(tempNodeId, backendNodeId)
-        commit()
-      }
-    })
-    .catch(() => {
-      undo()
-    })
 }
 
 function calculateEventNodeHeight(label: string) {
@@ -126,8 +112,11 @@ function collectDescendantIds(nodeId: string, edges: GraphEdge[]) {
   return descendants
 }
 
-function deleteNodeWithDescendants(nodeId: string) {
+async function deleteNodeWithDescendants(nodeId: string) {
   if (isRootNode(nodeId)) return
+  if (currentFaultTreeId.value == null) return
+
+  await faultTreeNodeApi.delete(currentFaultTreeId.value, nodeId)
 
   const { edges, nodes } = graphState.value
   const idsToDelete = new Set([nodeId, ...collectDescendantIds(nodeId, edges)])
@@ -143,41 +132,19 @@ function deleteNodeWithDescendants(nodeId: string) {
   commit()
 
   if (selectedNode.value && idsToDelete.has(selectedNode.value.id)) clearSelection()
-
-  if (currentFaultTreeId.value == null) return
-
-  faultTreeNodeApi.delete(currentFaultTreeId.value, nodeId).catch(() => {
-    undo()
-  })
 }
 
 function getGateShape(gateName: string) {
   return gateName === 'or' ? 'or-gate-node' : 'and-gate-node'
 }
 
-function getNodeLabel(node: GraphNode): string {
-  const textWrap = node.attrs?.label?.textWrap as { text?: string } | undefined
-  return textWrap?.text ?? node.label ?? node.data?.gate ?? ''
-}
-
 function isRootNode(nodeId: string) {
   return !graphState.value.edges.some(e => e.target === nodeId)
 }
 
-function replaceNodeId(oldId: string, newId: string) {
-  const node = graphState.value.nodes.find(n => n.id === oldId)
-  if (node) node.id = newId
-
-  for (const edge of graphState.value.edges) {
-    if (edge.source === oldId) edge.source = newId
-    if (edge.target === oldId) edge.target = newId
-  }
-
-  if (selectedNode.value?.id === oldId) selectedNode.value = { ...selectedNode.value, id: newId }
-}
-
-function saveNodeEdit(updates: SelectedNodeData) {
+async function saveNodeEdit(updates: SelectedNodeData) {
   if (!selectedNode.value) return
+  if (currentFaultTreeId.value == null) return
 
   const nodeId = selectedNode.value.id
   const node = graphState.value.nodes.find(n => n.id === nodeId)
@@ -185,6 +152,21 @@ function saveNodeEdit(updates: SelectedNodeData) {
 
   const oldNodeType = selectedNode.value.nodeType
   const isGate = oldNodeType === 'gate'
+
+  await faultTreeNodeApi.update(currentFaultTreeId.value, nodeId, {
+    description: updates.description,
+    gate: isGate ? updates.label : node.data?.gate,
+    node_name: updates.label,
+    node_type: node.data?.nodeType ?? 'event',
+    parent_id: graphState.value.edges.find(e => e.target === node.id)?.source,
+    rules: updates.rules?.map(r => ({
+      condition: r.condition,
+      deviceType: r.deviceType,
+      duration: r.duration,
+      measurePoint: r.measurePoint
+    })),
+    source: updates.source
+  })
 
   if (node.data) {
     node.data.description = updates.description
@@ -208,27 +190,6 @@ function saveNodeEdit(updates: SelectedNodeData) {
     rules: updates.rules,
     source: updates.source
   }
-
-  if (currentFaultTreeId.value == null) return
-
-  faultTreeNodeApi
-    .update(currentFaultTreeId.value, nodeId, {
-      description: node.data?.description,
-      gate: node.data?.gate,
-      node_name: getNodeLabel(node),
-      node_type: node.data?.nodeType ?? 'event',
-      parent_id: graphState.value.edges.find(e => e.target === node.id)?.source,
-      rules: updates.rules?.map(r => ({
-        condition: r.condition,
-        deviceType: r.deviceType,
-        duration: r.duration,
-        measurePoint: r.measurePoint
-      })),
-      source: updates.source
-    })
-    .catch(() => {
-      undo()
-    })
 }
 
 async function selectNode(node: SelectedNodeData) {

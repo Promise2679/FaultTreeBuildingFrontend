@@ -16,7 +16,7 @@ const chatMessages = computed(() =>
 
 const input = ref('')
 const uploadedFiles = ref<UploadedFile[]>([])
-const fileInputRef = ref<HTMLInputElement | null>(null)
+const fileInputRef = ref<HTMLInputElement>()
 const isGenerating = ref(false)
 
 let timerInterval: NodeJS.Timeout | null = null

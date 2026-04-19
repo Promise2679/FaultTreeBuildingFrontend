@@ -7,7 +7,7 @@ import type { GraphEdge, GraphNode, GraphNodeData, GraphNodePosition } from '~/t
 import { ADD_BUTTON_MARKUP, registerFaultTreeShapes } from '~/constants/faultTreeGraph'
 import { faultTreeApi } from '~/utils/api/faultTree'
 
-const { setGraph } = useGraphInstance()
+const { setGraph } = useGraph()
 
 const {
   addChildNode,
@@ -68,7 +68,7 @@ function applyDagreLayout(nodes: GraphNode[], edges: GraphEdge[]) {
   return { edges, nodes }
 }
 
-function handleKeyDown(e: KeyboardEvent) {
+async function handleKeyDown(e: KeyboardEvent) {
   if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
     e.preventDefault()
     if (e.shiftKey && canRedo.value) redo()
@@ -80,7 +80,7 @@ function handleKeyDown(e: KeyboardEvent) {
   }
   if (e.key === 'Delete' && selectedNode.value && !isRootNode(selectedNode.value.id)) {
     e.preventDefault()
-    deleteNodeWithDescendants(selectedNode.value.id)
+    await deleteNodeWithDescendants(selectedNode.value.id)
   }
 }
 
@@ -129,8 +129,8 @@ async function initGraph() {
       args: {
         markup: ADD_BUTTON_MARKUP,
         offset: { x: 0, y: 5 },
-        onClick: ({ cell }: { cell: { id: string } }) => {
-          addChildNode(cell.id)
+        onClick: async ({ cell }: { cell: { id: string } }) => {
+          await addChildNode(cell.id)
         },
         x: '50%',
         y: '100%'
