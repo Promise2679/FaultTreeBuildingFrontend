@@ -1,5 +1,18 @@
 import type { CommonResponse } from './common'
 
+export interface ChatHistoryItemResponse {
+  content: string
+  createdAt: string
+  id: number
+  modifyReason?: string
+  role: string
+  turnSummary?: string
+}
+
+export interface ChatHistoryListResponse extends CommonResponse {
+  data: ChatHistoryItemResponse[]
+}
+
 export interface FaultTreeDetailResponse extends CommonResponse {
   data: FaultTreeResponse
 }
@@ -8,6 +21,7 @@ export interface FaultTreeHistoryItemResponse {
   createdAt: string
   deviceType: string
   id: number
+  knowledgeBaseName?: string
   rootNodeId: string
   treeName: string
   updatedAt: string
@@ -29,9 +43,9 @@ export interface FaultTreeNodeResponse {
 export interface FaultTreeResponse {
   deviceType: string
   id: number
+  knowledgeBaseName?: string
   nodes: FaultTreeNodeResponse[]
   rootNodeId: string
-  topEvent?: string
   treeName: string
 }
 
@@ -45,6 +59,7 @@ export interface FaultTreeRuleResponse {
 
 export interface GenerateFaultTreeRequest {
   fault_content: string
+  knowledge_base_name?: string
 }
 
 export interface ModifyFaultTreeDataResponse {
@@ -58,7 +73,7 @@ export interface ModifyFaultTreeDetailResponse extends CommonResponse {
 }
 
 export interface ModifyFaultTreeRequest {
-  conversationContext?: string
-  faultContent: string
+  fault_content: string
   id: number
+  knowledge_base_name?: string
 }

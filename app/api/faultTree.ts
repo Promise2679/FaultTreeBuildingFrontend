@@ -1,5 +1,6 @@
 import type { CommonResponse } from '~/types/api/common'
 import type {
+  ChatHistoryListResponse,
   FaultTreeDetailResponse,
   FaultTreeHistoryListResponse,
   GenerateFaultTreeRequest,
@@ -23,6 +24,11 @@ export const faultTreeApi = {
   },
   getById(id: number) {
     return apiFetch<FaultTreeDetailResponse>(`/fault-trees/${id}`, {
+      method: 'GET'
+    })
+  },
+  getChatHistory(id: number) {
+    return apiFetch<ChatHistoryListResponse>(`/fault-trees/${id}/chat-history`, {
       method: 'GET'
     })
   },
