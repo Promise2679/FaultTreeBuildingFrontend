@@ -138,31 +138,6 @@ function deleteNodeWithDescendants(nodeId: string) {
   })
 }
 
-async function fetchNodeDetail(nodeId: string) {
-  if (currentFaultTreeId.value == null) return
-
-  isLoadingNodeDetail.value = true
-  try {
-    const res = await faultTreeNodeApi.getById(currentFaultTreeId.value, nodeId)
-    const detail = res.data
-    if (selectedNode.value?.id !== nodeId) return
-
-    selectedNode.value = {
-      ...selectedNode.value,
-      description: detail.description,
-      rules: detail.rules.map(r => ({
-        condition: r.condition,
-        deviceType: r.deviceType,
-        duration: r.duration,
-        measurePoint: r.measurePoint
-      })),
-      source: detail.source
-    }
-  } finally {
-    isLoadingNodeDetail.value = false
-  }
-}
-
 function getGateShape(gateName: string) {
   return gateName === 'or' ? 'or-gate-node' : 'and-gate-node'
 }
@@ -237,7 +212,28 @@ function saveNodeEdit(updates: SelectedNodeData) {
 async function selectNode(node: SelectedNodeData) {
   selectedNode.value = node
   isSidebarOpen.value = true
-  await fetchNodeDetail(node.id)
+  if (currentFaultTreeId.value == null) return
+
+  isLoadingNodeDetail.value = true
+  try {
+    const res = await faultTreeNodeApi.getById(currentFaultTreeId.value, node.id)
+    const detail = res.data
+    if (selectedNode.value.id !== node.id) return
+
+    selectedNode.value = {
+      ...selectedNode.value,
+      description: detail.description,
+      rules: detail.rules.map(r => ({
+        condition: r.condition,
+        deviceType: r.deviceType,
+        duration: r.duration,
+        measurePoint: r.measurePoint
+      })),
+      source: detail.source
+    }
+  } finally {
+    isLoadingNodeDetail.value = false
+  }
 }
 
 function transformFaultTreeData(data: FaultTreeResponse) {
