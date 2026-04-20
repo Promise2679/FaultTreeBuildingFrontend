@@ -28,7 +28,7 @@ onMounted(fetchKnowledgeBases)
 <template>
   <div
     class="fixed top-14 left-0 z-30 flex h-[calc(100vh-3.5rem)] flex-col border-r border-neutral-200 bg-neutral-50 shadow-lg"
-    :class="isCollapsed ? 'w-0' : 'w-80'"
+    :class="isCollapsed ? 'w-0' : 'w-100'"
   >
     <div v-show="!isCollapsed" ref="messagesRef" class="flex-1 overflow-auto p-3">
       <div v-if="!chatMessages.length && !loadingState" class="flex h-full items-center justify-center">
