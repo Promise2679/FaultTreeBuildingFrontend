@@ -7,6 +7,7 @@ const {
   input,
   isCollapsed,
   isGenerating,
+  loadingState,
   selectedKnowledgeBase,
   triggerFileUpload
 } = useChat()
@@ -14,14 +15,14 @@ const {
 const { fetchKnowledgeBases, knowledgeBases } = useKnowledgeBase()
 const knowledgeBaseOptions = computed(() => knowledgeBases.value.map(kb => ({ label: kb.name, value: kb.name })))
 
-onMounted(() => fetchKnowledgeBases())
-
 const messagesRef = ref<HTMLElement>()
 
-watchDeep(chatMessages, async () => {
+watchDeep([chatMessages, loadingState], async () => {
   await nextTick()
   if (messagesRef.value) messagesRef.value.scrollTop = messagesRef.value.scrollHeight
 })
+
+onMounted(fetchKnowledgeBases)
 </script>
 
 <template>
@@ -30,7 +31,20 @@ watchDeep(chatMessages, async () => {
     :class="isCollapsed ? 'w-0' : 'w-80'"
   >
     <div v-show="!isCollapsed" ref="messagesRef" class="flex-1 overflow-auto p-3">
-      <UChatMessages :messages="chatMessages" :user="{ variant: 'solid' }" :assistant="{ variant: 'soft' }" />
+      <div v-if="!chatMessages.length && !loadingState" class="flex h-full items-center justify-center">
+        <p class="text-sm text-neutral-400">输入消息开始对话</p>
+      </div>
+      <UChatMessages
+        v-if="chatMessages.length"
+        :messages="chatMessages"
+        :user="{ variant: 'solid' }"
+        :assistant="{ variant: 'soft' }"
+      />
+      <ChatLoadingIndicator
+        v-if="loadingState"
+        :action-text="loadingState.actionText"
+        :elapsed="loadingState.elapsed"
+      />
     </div>
 
     <div v-show="!isCollapsed" class="border-t border-neutral-200 p-3">

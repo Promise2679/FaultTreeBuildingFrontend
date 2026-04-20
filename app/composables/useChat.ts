@@ -3,13 +3,7 @@ import type { ChatMessage } from '~/types/chat'
 import { faultTreeApi } from '~/api/faultTree'
 import { knowledgeBaseApi } from '~/api/knowledgeBase'
 
-const DEFAULT_WELCOME: ChatMessage = {
-  content: '你好！我是故障树分析助手，有什么可以帮助你的吗？',
-  id: '1',
-  role: 'assistant'
-}
-
-const messages = ref<ChatMessage[]>([{ ...DEFAULT_WELCOME }])
+const messages = ref<ChatMessage[]>([])
 
 const chatMessages = computed(() =>
   messages.value.map(msg => ({
@@ -23,8 +17,15 @@ const input = ref('')
 const fileInputRef = ref<HTMLInputElement>()
 const isGenerating = ref(false)
 const selectedKnowledgeBase = ref<string>()
+const loadingState = ref<{ actionText: string; elapsed: number }>()
 
-let timerInterval: NodeJS.Timeout | null = null
+const { pause: pauseTimer, resume: resumeTimer } = useIntervalFn(
+  () => {
+    if (loadingState.value) loadingState.value.elapsed++
+  },
+  1000,
+  { immediate: false }
+)
 
 const [isCollapsed, toggle] = useToggle()
 
@@ -38,6 +39,7 @@ export function useChat() {
     isCollapsed,
     isGenerating: readonly(isGenerating),
     loadChatHistory,
+    loadingState: readonly(loadingState),
     messages,
     resetMessages,
     selectedKnowledgeBase,
@@ -81,75 +83,59 @@ async function handleSend() {
 
   input.value = ''
 
-  const assistantMsgId = `gen-${Date.now()}`
-  const assistantMsg: ChatMessage = {
-    content: '正在生成故障树... 已耗时 0s',
-    elapsedTime: 0,
-    id: assistantMsgId,
-    role: 'assistant',
-    status: 'generating'
-  }
-  messages.value.push(assistantMsg)
+  const { currentFaultTreeId, transformFaultTreeData } = useFaultTree()
+  const isValidation = currentFaultTreeId.value != null
+  const actionText = isValidation ? '校验' : '生成'
 
   isGenerating.value = true
-  const startTime = Date.now()
-
-  timerInterval = setInterval(() => {
-    const msg = messages.value.find(m => m.id === assistantMsgId)
-    if (msg) {
-      const elapsed = Math.floor((Date.now() - startTime) / 1000)
-      msg.elapsedTime = elapsed
-      msg.content = `正在生成故障树... 已耗时 ${elapsed}s`
-    }
-  }, 1000)
+  loadingState.value = { actionText, elapsed: 0 }
+  resumeTimer()
 
   try {
-    const res = await faultTreeApi.generate({
-      fault_content: userContent,
-      knowledge_base_name: selectedKnowledgeBase.value
-    })
-    const elapsed = Math.floor((Date.now() - startTime) / 1000)
-    const nodeCount = res.data.nodes.length
+    if (isValidation) {
+      const res = await faultTreeApi.validate({
+        fault_content: userContent,
+        id: currentFaultTreeId.value!,
+        knowledge_base_name: selectedKnowledgeBase.value
+      })
+      transformFaultTreeData(res.data.faultTree)
 
-    const msg = messages.value.find(m => m.id === assistantMsgId)
-    if (msg) {
-      msg.status = 'success'
-      msg.elapsedTime = elapsed
-      msg.content = `故障树已生成，共 ${nodeCount} 个节点，耗时 ${elapsed}s`
-    }
+      messages.value.push({
+        content: res.data.turnSummary,
+        id: `assistant-${Date.now()}`,
+        role: 'assistant'
+      })
+    } else {
+      const res = await faultTreeApi.generate({
+        fault_content: userContent,
+        knowledge_base_name: selectedKnowledgeBase.value
+      })
+      transformFaultTreeData(res.data)
 
-    const { transformFaultTreeData } = useFaultTree()
-    transformFaultTreeData(res.data)
-  } catch (error) {
-    const elapsed = Math.floor((Date.now() - startTime) / 1000)
-    const msg = messages.value.find(m => m.id === assistantMsgId)
-    if (msg) {
-      msg.status = 'error'
-      msg.elapsedTime = elapsed
-      const errMsg = error instanceof Error ? error.message : '未知错误'
-      msg.content = `生成失败：${errMsg}`
+      messages.value.push({
+        content: `已生成故障树：${res.data.treeName}`,
+        id: `assistant-${Date.now()}`,
+        role: 'assistant'
+      })
     }
   } finally {
-    clearInterval(timerInterval)
-    timerInterval = null
+    pauseTimer()
+    loadingState.value = undefined
     isGenerating.value = false
   }
 }
 
 async function loadChatHistory(id: number) {
   const res = await faultTreeApi.getChatHistory(id)
-  messages.value = [
-    { ...DEFAULT_WELCOME },
-    ...res.data.map(item => ({
-      content: item.content,
-      id: String(item.id),
-      role: item.role as ChatMessage['role']
-    }))
-  ]
+  messages.value = res.data.map(item => ({
+    content: item.content,
+    id: String(item.id),
+    role: item.role as ChatMessage['role']
+  }))
 }
 
 function resetMessages() {
-  messages.value = [{ ...DEFAULT_WELCOME }]
+  messages.value = []
 }
 
 function triggerFileUpload() {
