@@ -25,6 +25,7 @@ export function useFaultTree() {
     isRootNode,
     isSidebarOpen: readonly(isSidebarOpen),
     redo,
+    resetFaultTree,
     saveNodeEdit,
     selectedNode: readonly(selectedNode),
     selectNode,
@@ -138,6 +139,14 @@ function getGateShape(gateName: string) {
 
 function isRootNode(nodeId: string) {
   return !graphState.value.edges.some(e => e.target === nodeId)
+}
+
+function resetFaultTree() {
+  graphState.value = { edges: [], nodes: [] }
+  currentFaultTreeId.value = undefined
+  clearSelection()
+  commit()
+  clear()
 }
 
 async function saveNodeEdit(updates: SelectedNodeData) {

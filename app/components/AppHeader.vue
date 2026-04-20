@@ -3,7 +3,7 @@ import type { FaultTreeHistoryItemResponse } from '~/types/api/faultTree'
 
 const { exportAsImage } = useGraph()
 const { isCollapsed, toggle } = useChat()
-const { currentFaultTreeId } = useFaultTree()
+const { currentFaultTreeId, resetFaultTree } = useFaultTree()
 const isHistoryOpen = ref(false)
 const isKnowledgeBaseOpen = ref(false)
 
@@ -23,6 +23,7 @@ function handleHistorySelect(item: FaultTreeHistoryItemResponse) {
       />
       <UButton icon="i-lucide-history" size="sm" variant="ghost" @click="isHistoryOpen = true" />
       <UButton icon="i-lucide-book-open" size="sm" variant="ghost" @click="isKnowledgeBaseOpen = true" />
+      <UButton icon="i-lucide-file-plus" size="sm" variant="ghost" @click="resetFaultTree" />
     </div>
     <div class="flex-1 text-center font-medium text-neutral-700">故障树编辑器</div>
     <div class="flex items-center gap-1 px-3">
