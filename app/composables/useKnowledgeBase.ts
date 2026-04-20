@@ -43,8 +43,9 @@ async function createKnowledgeBase(name: string) {
 
 async function deleteFile(fileName: string) {
   if (!currentKnowledgeBase.value) return
+
   const kbName = currentKnowledgeBase.value.name
-  await knowledgeBaseApi.deleteFile(kbName, fileName)
+  await knowledgeBaseApi.deleteFile({ file_name: fileName, knowledge_base_name: kbName })
   await fetchFiles(kbName)
 
   const kb = knowledgeBases.value.find(k => k.name === kbName)

@@ -4,6 +4,11 @@ export interface CreateKnowledgeBaseRequest {
   knowledge_base_name: string
 }
 
+export interface DeleteKnowledgeBaseFileRequest {
+  file_name: string
+  knowledge_base_name: string
+}
+
 export interface KnowledgeBaseDetailDataResponse {
   files: KnowledgeBaseFileResponse[]
   knowledgeBaseName: string

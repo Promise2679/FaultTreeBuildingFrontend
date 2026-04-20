@@ -1,6 +1,7 @@
 import type { CommonResponse } from '~/types/api/common'
 import type {
   CreateKnowledgeBaseRequest,
+  DeleteKnowledgeBaseFileRequest,
   KnowledgeBaseDetailResponse,
   KnowledgeBaseListDetailResponse,
   RenameKnowledgeBaseRequest
@@ -20,11 +21,11 @@ export const knowledgeBaseApi = {
       method: 'DELETE'
     })
   },
-  deleteFile(name: string, fileName: string) {
-    return apiFetch<CommonResponse>(
-      `/knowledge-bases/${encodeURIComponent(name)}/files/${encodeURIComponent(fileName)}`,
-      { method: 'DELETE' }
-    )
+  deleteFile(data: DeleteKnowledgeBaseFileRequest) {
+    return apiFetch<CommonResponse>(`/knowledge-bases//files`, {
+      body: data,
+      method: 'DELETE'
+    })
   },
   getByName(name: string) {
     return apiFetch<KnowledgeBaseDetailResponse>(`/knowledge-bases/${encodeURIComponent(name)}`, {
