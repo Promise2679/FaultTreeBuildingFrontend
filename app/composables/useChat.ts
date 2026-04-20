@@ -18,6 +18,7 @@ const input = ref('')
 const uploadedFiles = ref<UploadedFile[]>([])
 const fileInputRef = ref<HTMLInputElement>()
 const isGenerating = ref(false)
+const selectedKnowledgeBase = ref<string>()
 
 let timerInterval: NodeJS.Timeout | null = null
 
@@ -34,6 +35,7 @@ export function useChat() {
     isGenerating: readonly(isGenerating),
     messages,
     removeFile,
+    selectedKnowledgeBase,
     toggle,
     triggerFileUpload,
     uploadedFiles
@@ -97,7 +99,10 @@ async function handleSend() {
   }, 1000)
 
   try {
-    const res = await faultTreeApi.generate({ fault_content: userContent })
+    const res = await faultTreeApi.generate({
+      fault_content: userContent,
+      knowledge_base_name: selectedKnowledgeBase.value
+    })
     const elapsed = Math.floor((Date.now() - startTime) / 1000)
     const nodeCount = res.data.nodes.length
 
