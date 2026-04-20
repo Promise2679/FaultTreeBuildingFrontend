@@ -5,17 +5,33 @@ import type { KnowledgeBase } from '~/types/knowledgeBase'
 
 const UButton = resolveComponent('UButton')
 
-const { createKnowledgeBase, deleteKnowledgeBase, fetchKnowledgeBases, knowledgeBases, loading, openDetail } =
-  useKnowledgeBase()
+const UInput = resolveComponent('UInput')
+
+const {
+  createKnowledgeBase,
+  deleteKnowledgeBase,
+  fetchKnowledgeBases,
+  knowledgeBases,
+  loading,
+  openDetail,
+  renameKnowledgeBase
+} = useKnowledgeBase()
 
 const isCreating = ref(false)
 const newName = ref('')
+const editingKb = ref<KnowledgeBase>()
+const editingName = ref('')
 
 onMounted(fetchKnowledgeBases)
 
 function cancelCreate() {
   newName.value = ''
   isCreating.value = false
+}
+
+function cancelEdit() {
+  editingKb.value = undefined
+  editingName.value = ''
 }
 
 async function handleCreate() {
@@ -26,9 +42,51 @@ async function handleCreate() {
   isCreating.value = false
 }
 
+async function handleRename() {
+  const name = editingName.value.trim()
+  if (!name || !editingKb.value || name === editingKb.value.name) {
+    cancelEdit()
+    return
+  }
+  await renameKnowledgeBase(editingKb.value.name, name)
+  cancelEdit()
+}
+
+function startEdit(kb: KnowledgeBase) {
+  editingKb.value = kb
+  editingName.value = kb.name
+}
+
 const columns: Array<TableColumn<KnowledgeBase>> = [
   {
     accessorKey: 'name',
+    cell: ({ row }) => {
+      const kb = row.original
+      if (editingKb.value?.name === kb.name)
+        return h(UInput, {
+          autofocus: true,
+          modelValue: editingName.value,
+          onBlur: handleRename,
+          onKeyup: async (e: KeyboardEvent) => {
+            if (e.key === 'Enter') await handleRename()
+            if (e.key === 'Escape') cancelEdit()
+          },
+          'onUpdate:modelValue': (v: string) => {
+            editingName.value = v
+          },
+          size: 'xs'
+        })
+      return h(
+        'span',
+        {
+          class: 'cursor-pointer',
+          onClick: () => {
+            startEdit(kb)
+          }
+        },
+        kb.name
+      )
+    },
     header: '知识库名称'
   },
   {

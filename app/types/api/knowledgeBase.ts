@@ -28,5 +28,5 @@ export interface KnowledgeBaseSummaryResponse {
 }
 
 export interface RenameKnowledgeBaseRequest {
-  newName: string
+  new_name: string
 }

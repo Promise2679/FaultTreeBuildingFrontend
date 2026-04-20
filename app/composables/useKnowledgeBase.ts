@@ -23,6 +23,7 @@ export function useKnowledgeBase() {
     knowledgeBases: knowledgeBases,
     loading: readonly(loading),
     openDetail,
+    renameKnowledgeBase,
     resetView,
     uploadFile,
     view: readonly(view)
@@ -85,6 +86,13 @@ async function openDetail(kb: KnowledgeBase) {
   currentKnowledgeBase.value = kb
   view.value = 'detail'
   await fetchFiles(kb.name)
+}
+
+async function renameKnowledgeBase(oldName: string, newName: string) {
+  await knowledgeBaseApi.rename(oldName, { new_name: newName })
+  await fetchKnowledgeBases()
+  if (currentKnowledgeBase.value?.name === oldName)
+    currentKnowledgeBase.value = { ...currentKnowledgeBase.value, name: newName }
 }
 
 function resetView() {
