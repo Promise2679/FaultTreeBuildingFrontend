@@ -3,9 +3,13 @@ import type { ChatMessage } from '~/types/chat'
 import { faultTreeApi } from '~/api/faultTree'
 import { knowledgeBaseApi } from '~/api/knowledgeBase'
 
-const messages = ref<ChatMessage[]>([
-  { content: '你好！我是故障树分析助手，有什么可以帮助你的吗？', id: '1', role: 'assistant' }
-])
+const DEFAULT_WELCOME: ChatMessage = {
+  content: '你好！我是故障树分析助手，有什么可以帮助你的吗？',
+  id: '1',
+  role: 'assistant'
+}
+
+const messages = ref<ChatMessage[]>([{ ...DEFAULT_WELCOME }])
 
 const chatMessages = computed(() =>
   messages.value.map(msg => ({
@@ -33,7 +37,9 @@ export function useChat() {
     input,
     isCollapsed,
     isGenerating: readonly(isGenerating),
+    loadChatHistory,
     messages,
+    resetMessages,
     selectedKnowledgeBase,
     toggle,
     triggerFileUpload
@@ -128,6 +134,22 @@ async function handleSend() {
     timerInterval = null
     isGenerating.value = false
   }
+}
+
+async function loadChatHistory(id: number) {
+  const res = await faultTreeApi.getChatHistory(id)
+  messages.value = [
+    { ...DEFAULT_WELCOME },
+    ...res.data.map(item => ({
+      content: item.content,
+      id: String(item.id),
+      role: item.role as ChatMessage['role']
+    }))
+  ]
+}
+
+function resetMessages() {
+  messages.value = [{ ...DEFAULT_WELCOME }]
 }
 
 function triggerFileUpload() {
