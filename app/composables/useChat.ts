@@ -1,6 +1,7 @@
-import type { ChatMessage, UploadedFile } from '~/types/chat'
+import type { ChatMessage } from '~/types/chat'
 
 import { faultTreeApi } from '~/api/faultTree'
+import { knowledgeBaseApi } from '~/api/knowledgeBase'
 
 const messages = ref<ChatMessage[]>([
   { content: '你好！我是故障树分析助手，有什么可以帮助你的吗？', id: '1', role: 'assistant' }
@@ -15,7 +16,6 @@ const chatMessages = computed(() =>
 )
 
 const input = ref('')
-const uploadedFiles = ref<UploadedFile[]>([])
 const fileInputRef = ref<HTMLInputElement>()
 const isGenerating = ref(false)
 const selectedKnowledgeBase = ref<string>()
@@ -34,47 +34,46 @@ export function useChat() {
     isCollapsed,
     isGenerating: readonly(isGenerating),
     messages,
-    removeFile,
     selectedKnowledgeBase,
     toggle,
-    triggerFileUpload,
-    uploadedFiles
+    triggerFileUpload
   }
 }
 
-function handleFileSelect(event: Event) {
+async function handleFileSelect(event: Event) {
   const target = event.target as HTMLInputElement
   const files = target.files
-  if (!files) return
+  if (!files || files.length === 0) return
 
-  for (const file of files)
-    uploadedFiles.value.push({
-      file,
-      id: Date.now().toString() + crypto.randomUUID(),
-      name: file.name,
-      size: file.size,
-      type: file.type
-    })
+  const toast = useToast()
+
+  if (!selectedKnowledgeBase.value) {
+    toast.add({ color: 'warning', description: '请先选择知识库', title: '提示' })
+    target.value = ''
+    return
+  }
+
+  const kbName = selectedKnowledgeBase.value
+  for (const file of files) {
+    await knowledgeBaseApi.uploadFile(kbName, file)
+    toast.add({ color: 'success', description: `${file.name} 上传成功`, title: '上传成功' })
+  }
 
   target.value = ''
 }
 
 async function handleSend() {
-  if (isGenerating.value) return
-  if (!input.value.trim() && uploadedFiles.value.length === 0) return
+  if (isGenerating.value || !input.value.trim()) return
 
   const userContent = input.value.trim()
-  const files = [...uploadedFiles.value].map(f => f.file)
 
   messages.value.push({
-    attachments: files.length > 0 ? files : undefined,
     content: userContent,
     id: Date.now().toString(),
     role: 'user'
   })
 
   input.value = ''
-  uploadedFiles.value = []
 
   const assistantMsgId = `gen-${Date.now()}`
   const assistantMsg: ChatMessage = {
@@ -129,10 +128,6 @@ async function handleSend() {
     timerInterval = null
     isGenerating.value = false
   }
-}
-
-function removeFile(id: string) {
-  uploadedFiles.value = uploadedFiles.value.filter(f => f.id !== id)
 }
 
 function triggerFileUpload() {

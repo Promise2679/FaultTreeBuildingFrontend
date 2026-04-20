@@ -7,10 +7,8 @@ const {
   input,
   isCollapsed,
   isGenerating,
-  removeFile,
   selectedKnowledgeBase,
-  triggerFileUpload,
-  uploadedFiles
+  triggerFileUpload
 } = useChat()
 
 const { fetchKnowledgeBases, knowledgeBases } = useKnowledgeBase()
@@ -36,23 +34,6 @@ watchDeep(chatMessages, async () => {
     </div>
 
     <div v-show="!isCollapsed" class="border-t border-neutral-200 p-3">
-      <div v-if="uploadedFiles.length > 0" class="mb-2 flex flex-wrap gap-2">
-        <div
-          v-for="file in uploadedFiles"
-          :key="file.id"
-          class="flex items-center gap-1 rounded-md bg-neutral-100 px-2 py-1 text-xs text-neutral-700"
-        >
-          <UIcon name="i-lucide-paperclip" class="size-3" />
-          <span class="max-w-24 truncate">{{ file.name }}</span>
-          <button
-            type="button"
-            class="ml-1 cursor-pointer text-neutral-500 hover:text-neutral-700"
-            @click="removeFile(file.id)"
-          >
-            <UIcon name="i-lucide-x" class="size-3" />
-          </button>
-        </div>
-      </div>
       <UChatPrompt v-model="input" placeholder="输入消息..." :disabled="isGenerating" @submit="handleSend">
         <template #footer>
           <input ref="fileInputRef" type="file" class="hidden" multiple @change="handleFileSelect" />
