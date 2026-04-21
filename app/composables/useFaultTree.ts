@@ -161,7 +161,11 @@ async function saveNodeEdit(updates: SelectedNodeData) {
 
   await faultTreeNodeApi.update(currentFaultTreeId.value, nodeId, {
     description: updates.description,
-    gate: isGate ? updates.label : node.data?.gate,
+    gate: isGate
+      ? updates.label
+      : graphState.value.nodes.find(
+          n => graphState.value.edges.some(e => e.source === nodeId && e.target === n.id) && n.data?.nodeType === 'gate'
+        )?.data?.gate,
     node_name: updates.label,
     node_type: node.data?.nodeType ?? 'event',
     parent_id: graphState.value.edges.find(e => e.target === node.id)?.source,
