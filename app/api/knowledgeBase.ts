@@ -22,7 +22,7 @@ export const knowledgeBaseApi = {
     })
   },
   deleteFile(data: DeleteKnowledgeBaseFileRequest) {
-    return apiFetch<CommonResponse>(`/knowledge-bases//files`, {
+    return apiFetch<CommonResponse>(`/knowledge-bases/files`, {
       body: data,
       method: 'DELETE'
     })
