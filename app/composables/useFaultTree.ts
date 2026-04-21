@@ -226,6 +226,7 @@ async function selectNode(node: SelectedNodeData) {
 }
 
 function transformFaultTreeData(data: FaultTreeResponse) {
+  currentFaultTreeId.value = data.id
   graphState.value.nodes = []
   graphState.value.edges = []
   const { nodes } = data
