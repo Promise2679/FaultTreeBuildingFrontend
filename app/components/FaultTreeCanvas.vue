@@ -103,6 +103,7 @@ async function initGraph() {
   graph.resize(window.innerWidth, window.innerHeight)
 
   renderGraph()
+  graph.centerContent()
 
   graph.on('node:click', async ({ node }) => {
     const nodeData = node.getData<GraphNodeData>()
@@ -162,7 +163,6 @@ function renderGraph() {
   const edges = graphState.value.edges.map(e => ({ ...e }))
   const layoutedData = applyDagreLayout(nodes, edges)
   graph.fromJSON(layoutedData)
-  graph.centerContent()
 }
 </script>
 
