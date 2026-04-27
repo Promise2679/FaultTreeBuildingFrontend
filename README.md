@@ -5,6 +5,10 @@
 
 基于 Nuxt 4 + AntV X6 的故障树可视化构建系统，采用现代化的前端技术栈实现故障树的创建、编辑与 AI 智能生成。
 
+后端仓库：https://github.com/sqb550/FaultTreeBuilding
+
+AI 端仓库：https://github.com/roverstargazer1-max/industry-tree
+
 ## 项目简介
 
 FaultTreeBuildingFrontend 是一款专业的故障树可视化构建系统，提供直观的图形化界面，支持通过自然语言描述或文档上传智能生成故障树，同时具备完整的知识库管理功能。
